@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MeowAfisha — интеллектуальная карта мероприятий</title>
+    <link rel="stylesheet" href="enhanced_styles.css">
+    <script src="https://unpkg.com/maplibre-gl@3.6.2/dist/maplibre-gl.js"></script>
+    <link href="https://unpkg.com/maplibre-gl@3.6.2/dist/maplibre-gl.css" rel="stylesheet">
+    <meta name="description" content="Интеллектуальная карта мероприятий Калининграда с персональными рекомендациями на основе ИИ">
+    <meta name="keywords" content="мероприятия, Калининград, карта, события, рекомендации, ИИ">
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <header class="header">
+            <div class="logo">
+                <img src="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDAiIGhlaWdodD0iNDAiIHZpZXdCb3g9IjAgMCA0MCA0MCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHJlY3Qgd2lkdGg9IjQwIiBoZWlnaHQ9IjQwIiByeD0iOCIgZmlsbD0iI0ZGNjYwMCIvPgo8cGF0aCBkPSJNMTIgMTJIMjhWMTZIMTJWMTJaIiBmaWxsPSJ3aGl0ZSIvPgo8cGF0aCBkPSJNMTIgMjBIMjRWMjRIMTJWMjBaIiBmaWxsPSJ3aGl0ZSIvPgo8cGF0aCBkPSJNMTIgMjhIMjhWMzJIMTJWMjhaIiBmaWxsPSJ3aGl0ZSIvPgo8Y2lyY2xlIGN4PSIzMiIgY3k9IjgiIHI9IjQiIGZpbGw9IiM0Q0FGNTASCZ8L3N2Zz4K" alt="MeowAfisha">
+                <h1>MEOW!</h1>
+            </div>
+            <div class="header-controls">
+                <div class="date-filter">
+                    <label for="date-filter">📅</label>
+                    <input type="date" id="date-filter" title="Фильтр по дате">
+                </div>
+                <button class="sidebar-toggle" onclick="uiManager.toggleSidebar()" title="Показать/скрыть панель">☰</button>
+            </div>
+        </header>
+
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <button class="close-btn" onclick="uiManager.toggleSidebar()" title="Закрыть панель">✕</button>
+            
+            <!-- AI Recommendations Section -->
+            <section id="recommendations" class="recommendations">
+                <h3>🤖 Персональные рекомендации</h3>
+                <p class="no-recommendations">Поставьте лайки событиям, чтобы получить персональные рекомендации!</p>
+            </section>
+
+            <!-- Popular Events Section -->
+            <section id="popular-events" class="popular-events">
+                <h3>🔥 Популярные события</h3>
+                <div class="popular-list">
+                    <!-- Popular events will be rendered here -->
+                </div>
+            </section>
+
+            <!-- Events List Section -->
+            <section class="events-section">
+                <h2>📅 Ближайшие события</h2>
+                <div id="events-list" class="events-list">
+                    <div class="loading">Загрузка событий...</div>
+                </div>
+            </section>
+        </aside>
+
+        <!-- Map -->
+        <main class="map-container">
+            <div id="map"></div>
+        </main>
+    </div>
+
+    <!-- Scripts -->
+    <script src="enhanced_script.js"></script>
+    
+    <!-- Analytics and Performance -->
+    <script>
+        // Simple performance monitoring
+        window.addEventListener('load', () => {
+            const loadTime = performance.now();
+            console.log(`Page loaded in ${loadTime.toFixed(2)}ms`);
+            
+            // Track user interactions for analytics
+            document.addEventListener('click', (e) => {
+                if (e.target.matches('.btn-like, .btn-dislike')) {
+                    console.log('User interaction:', e.target.className, e.target.closest('.event-item')?.dataset.eventTitle);
+                }
+            });
+        });
+
+        // Service Worker registration for PWA capabilities (future enhancement)
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                // navigator.serviceWorker.register('/sw.js')
+                //     .then(registration => console.log('SW registered'))
+                //     .catch(error => console.log('SW registration failed'));
+            });
+        }
+
+        // Error handling
+        window.addEventListener('error', (e) => {
+            console.error('Global error:', e.error);
+            // In production, send to error tracking service
+        });
+
+        window.addEventListener('unhandledrejection', (e) => {
+            console.error('Unhandled promise rejection:', e.reason);
+            // In production, send to error tracking service
+        });
+    </script>
+</body>
+</html>
+
