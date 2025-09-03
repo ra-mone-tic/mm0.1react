@@ -1,153 +1,200 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-  <meta charset="utf-8">
-  <title>MeowAfisha — карта мероприятий</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <link href="https://unpkg.com/maplibre-gl@2.4.0/dist/maplibre-gl.css" rel="stylesheet"/>
-  <style>
-    body{margin:0;font-family:sans-serif;}
-    #controls{
-      display:flex;align-items:center;gap:8px;
-      padding:12px;background:#f7f7f7;border-bottom:1px solid #ccc;
-    }
-    input[type=date]{font-size:16px;}
-    #logo{height:32px;}
-    #burger{cursor:pointer;font-size:26px;}
-    #count{margin-left:8px;font-weight:bold;}
-    #map{flex:1;}
-    #sidebar{
-      width:300px;background:#fff;overflow-y:auto;
-      padding:12px;font-size:14px;border-left:1px solid #ccc;
-    }
-    #sidebar div.item{
-      margin-bottom:12px;cursor:pointer;
-      border-bottom:1px dashed #ccc;padding-bottom:8px;
-    }
-    #sidebar div.item:hover{background:#f0f0f0;}
-    #closeSidebar{cursor:pointer;font-size:22px;font-weight:bold;}
-    #burger{display:none;}
-    @media(max-width:768px){
-      #layout{flex-direction:column;}
-      #sidebar{
-        position:fixed;right:0;top:0;height:100%;
-        transform:translateX(100%);
-        transition:transform .3s;
-        z-index:999;box-shadow:-4px 0 6px rgba(0,0,0,.15);
-      }
-      #sidebar.open{transform:translateX(0);}
-      #burger{display:block;margin-left:auto;}
-      #count{display:none;}
-    }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MeowMap - Карта Калининграда</title>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" />
+    <style>
+        #map {
+            height: 100vh;
+            width: 100%;
+        }
+        #search-container {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            z-index: 1000;
+            background-color: white;
+            padding: 10px;
+            border-radius: 5px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.2);
+        }
+        #search-results {
+            border: 1px solid #ccc;
+            max-height: 200px;
+            overflow-y: auto;
+            margin-top: 5px;
+        }
+        #search-results div {
+            padding: 8px;
+            cursor: pointer;
+        }
+        #search-results div:hover {
+            background-color: #f0f0f0;
+        }
+    </style>
 </head>
 <body>
-
-  <div id="controls">
-    <label for="event-date">📅</label>
-    <input type="date" id="event-date">
-    <img id="logo"
-         src="https://sun9-81.userapi.com/impf/rcuLPGnzIPly7IQhX6MbA5TICbdWnl6AhMVSXQ/dFRCwb6vi5k.jpg?size=1818x606&quality=95&crop=0,21,1541,513&sign=34cbe06fb366638d9c7ca0693f1f83ef&type=cover_group"
-         alt="Meow Records">
-    <span id="burger">☰</span>
-    <!-- <span id="count"></span> -->
-  </div>
-
-  <div id="layout" style="display:flex;height:90vh;">
     <div id="map"></div>
-
-    <div id="sidebar">
-      <div style="display:flex;justify-content:space-between;align-items:center;">
-        <h3 style="margin:0;">Ближайшие события</h3>
-        <span id="closeSidebar">✕</span>
-      </div>
-      <hr>
-      <div id="upcoming"></div>
+    <div id="search-container">
+        <input type="text" id="search" placeholder="Поиск по карте">
+        <button id="search-button">Найти</button>
+        <div id="search-results"></div>
     </div>
-  </div>
+    <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
+    <script>
+        // Initialize the map centered on Kaliningrad
+        var map = L.map(\'map\').setView([54.7104, 20.4522], 12);
 
-  <script src="https://unpkg.com/maplibre-gl@2.4.0/dist/maplibre-gl.js"></script>
-  <script>
-    const JSON_URL     = 'events.json?v=20250730';
-    const MAPTILER_KEY = 'QAuK0LSzMpyDV8I7iX6a';
+        // Add a tile layer using a public OSM server
+        L.tileLayer(\'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png\', {
+            attribution: \'&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors\'
+        }).addTo(map);
 
-    const map = new maplibregl.Map({
-      container:'map',
-      style:`https://api.maptiler.com/maps/basic/style.json?key=${MAPTILER_KEY}`,
-      center:[20.45,54.71],
-      zoom:10
-    });
+        // Comments on tile system:
+        // The URL uses placeholders {s}, {z}, {x}, {y}:
+        // {s}: Subdomain, used for load balancing (e.g., a, b, c.tile.openstreetmap.org)
+        // {z}: Zoom level. 0 is the entire world, higher numbers zoom in.
+        // {x}: X coordinate of the tile.
+        // {y}: Y coordinate of the tile.
+        // Each tile is a 256x256 pixel image.
 
-    map.addControl(new maplibregl.NavigationControl(),'top-right');
-    map.addControl(new maplibregl.GeolocateControl({
-      positionOptions:{enableHighAccuracy:true},
-      showUserLocation:true
-    }),'top-right');
+        // Public tile usage limits/rate-limits:
+        // OpenStreetMap\\\'s tile usage policy (https://operations.osmfoundation.org/policies/tiles/) 
+        // requests that heavy users set up their own tile server or use a commercial provider.
+        // Excessive use can lead to IP blocking. This setup is for development/demonstration.
 
-    // Ускорение отрисовки карты
-    map.on('load', () => {
-      setTimeout(() => map.resize(), 100);
-    });
+        // Future tile caching/self-hosting plan:
+        // For production, consider:
+        // 1. Using a tile caching proxy (e.g., mod_tile with Apache, or a custom Nginx setup) to reduce requests to OSM servers.
+        // 2. Self-hosting tiles by downloading and serving them from a local server (e.g., using OpenMapTiles or similar).
+        // 3. Using a commercial tile provider for guaranteed service levels.
 
-    let markers=[];
+        // Marker functionality
+        function loadMarkers() {
+            fetch(\'/api/markers\')
+                .then(response => response.json())
+                .then(markers => {
+                    markers.forEach(markerData => {
+                        addMarkerToMap(markerData);
+                    });
+                });
+        }
 
-    function clearMarkers(){markers.forEach(m=>m.remove());markers=[];}
-    function addMarker(ev){
-      const pop=new maplibregl.Popup({offset:25})
-        .setHTML(`<b>${ev.title}</b><br>${ev.location}<br>${ev.date}`);
-      const m=new maplibregl.Marker().setLngLat([ev.lon,ev.lat]).setPopup(pop).addTo(map);
-      markers.push(m);
-    }
-
-    fetch(JSON_URL).then(r=>r.json()).then(events=>{
-      events.sort((a,b)=>a.date.localeCompare(b.date));
-      const input=document.getElementById('event-date');
-      input.min=events[0].date;input.max=events.at(-1).date;
-      const today=new Date().toISOString().slice(0,10);
-      const first=events.find(e=>e.date>=today)?today:events[0].date;
-      input.value=first;
-
-      function render(dateStr){
-        clearMarkers();
-        const todays=events.filter(e=>e.date===dateStr);
-        todays.forEach(addMarker);
-        // document.getElementById('count').textContent=todays.length;
-        if(todays.length) map.flyTo({center:[todays[0].lon,todays[0].lat],zoom:12});
-      }
-
-      const upcoming=events.filter(e=>new Date(e.date)>=new Date(today)).slice(0,100);
-      const upDiv=document.getElementById('upcoming');
-      if(!upcoming.length){upDiv.textContent='События не найдены';}
-      else upcoming.forEach(e=>{
-        const d=document.createElement('div');
-        d.className='item';
-        d.innerHTML=`<strong>${e.title}</strong><br>${e.location}<br><i>${e.date}</i>`;
-        d.onclick=()=>{
-          render(e.date);
-          setTimeout(()=>{
-            const m = markers.find(mk => {
-              const p = mk.getLngLat();
-              return Math.abs(p.lat - e.lat) < 1e-5 && Math.abs(p.lng - e.lon) < 1e-5;
-            });
-            if (m) {
-              map.flyTo({center:[e.lon,e.lat],zoom:14});
-              m.togglePopup();
+        async function addMarkerToMap(markerData) {
+            let popupContent = `<b>${markerData.title}</b><br>${markerData.description || \'\'} <br>`;
+            
+            // Reverse geocode the coordinates
+            const response = await fetch(`/api/reverse_geocode?lat=${markerData.latitude}&lng=${markerData.longitude}`);
+            const geoData = await response.json();
+            
+            if (geoData.name) {
+                popupContent += `Адрес: ${geoData.name}<br>`;
             }
-            document.getElementById('sidebar').classList.remove('open');
-          },100);
-        };
-        upDiv.appendChild(d);
-      });
+            popupContent += `Координаты: ${markerData.latitude.toFixed(4)}, ${markerData.longitude.toFixed(4)}<br>`;
+            popupContent += `<button onclick="deleteMarker(${markerData.id})">Удалить</button>`;
 
-      render(first);
-      input.onchange=ev=>{
-        const d=new Date(ev.target.value).toISOString().slice(0,10);
-        render(d);
-      };
-    });
+            var marker = L.marker([markerData.latitude, markerData.longitude]).addTo(map);
+            marker.bindPopup(popupContent).openPopup();
+            marker.options.markerId = markerData.id; // Store marker ID for deletion
+        }
 
-    document.getElementById('burger').onclick=()=>document.getElementById('sidebar').classList.toggle('open');
-    document.getElementById('closeSidebar').onclick=()=>document.getElementById('sidebar').classList.remove('open');
-  </script>
+        map.on(\'click\', async function(e) {
+            var title = prompt(\'Введите название маркера (на русском):\');
+            if (title) {
+                var description = prompt(\'Введите описание маркера (необязательно, на русском):\');
+                
+                const response = await fetch(\'/api/markers\', {
+                    method: \'POST\',
+                    headers: {
+                        \'Content-Type\': \'application/json\'
+                    },
+                    body: JSON.stringify({
+                        lat: e.latlng.lat,
+                        lng: e.latlng.lng,
+                        title: title,
+                        description: description
+                    })
+                });
+                const newMarker = await response.json();
+                
+                addMarkerToMap({
+                    id: newMarker.id,
+                    latitude: e.latlng.lat,
+                    longitude: e.latlng.lng,
+                    title: title,
+                    description: description
+                });
+            }
+        });
+
+        function deleteMarker(markerId) {
+            if (confirm(\'Вы уверены, что хотите удалить этот маркер?\')) {
+                fetch(\'/api/markers/\'+markerId, {
+                    method: \'DELETE\'
+                })
+                .then(response => {
+                    if (response.ok) {
+                        // Remove marker from map
+                        map.eachLayer(function (layer) {
+                            if (layer.options && layer.options.markerId === markerId) {
+                                map.removeLayer(layer);
+                            }
+                        });
+                    } else {
+                        alert(\'Ошибка при удалении маркера.\');
+                    }
+                });
+            }
+        }
+
+        // Forward geocoding functionality
+        const searchInput = document.getElementById(\'search\');
+        const searchButton = document.getElementById(\'search-button\');
+        const searchResultsDiv = document.getElementById(\'search-results\');
+
+        searchButton.addEventListener(\'click\', performSearch);
+        searchInput.addEventListener(\'keyup\', function(event) {
+            if (event.key === \'Enter\') {
+                performSearch();
+            }
+        });
+
+        async function performSearch() {
+            const query = searchInput.value;
+            if (query.length < 2) {
+                searchResultsDiv.innerHTML = \'\';
+                return;
+            }
+
+            const response = await fetch(`/api/geocode?q=${query}`);
+            const results = await response.json();
+
+            searchResultsDiv.innerHTML = \'\';
+            if (results.length > 0) {
+                results.forEach(result => {
+                    const resultItem = document.createElement(\'div\');
+                    resultItem.textContent = result.name;
+                    resultItem.addEventListener(\'click\', () => {
+                        map.setView([result.latitude, result.longitude], 14); // Zoom to result
+                        L.marker([result.latitude, result.longitude]).addTo(map)
+                            .bindPopup(result.name).openPopup();
+                        searchResultsDiv.innerHTML = \'\'; // Clear results after selection
+                        searchInput.value = result.name; // Set input to selected name
+                    });
+                    searchResultsDiv.appendChild(resultItem);
+                });
+            } else {
+                searchResultsDiv.innerHTML = \'<div>Нет результатов</div>\';
+            }
+        }
+
+        // Load existing markers on page load
+        loadMarkers();
+
+    </script>
 </body>
 </html>
+
+
