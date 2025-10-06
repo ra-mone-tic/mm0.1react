@@ -2,8 +2,8 @@ name: Update Events
 
 on:
   schedule:
-    # Каждые 2 часа
-    - cron: '0 */2 * * *'
+    # Каждые 12 часов
+    - cron: '0 */12 * * *'
   workflow_dispatch:
 
 jobs:
