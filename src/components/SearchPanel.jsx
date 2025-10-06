@@ -13,6 +13,47 @@ function SearchPanel({ events }) {
   const searchEmptyRef = useRef(null);
   const searchLabelRef = useRef(null);
 
+  // Функции открытия/закрытия панели
+  const openSearchPanel = useCallback(() => {
+    if (!searchPanelRef.current || isPanelOpen) return;
+
+    // Обновляем offset для панели
+    document.documentElement.style.setProperty('--search-panel-offset', '82px');
+
+    searchPanelRef.current.classList.add('open');
+    searchPanelRef.current.setAttribute('aria-hidden', 'false');
+    setIsPanelOpen(true);
+
+    renderSearchResults(searchInputRef.current?.value ?? '');
+
+    // Перерисовываем карту
+    if (window.mapInstance) {
+      window.mapInstance.resize();
+    }
+  }, [isPanelOpen]);
+
+  const closeSearchPanel = useCallback(({ blur = true } = {}) => {
+    if (!searchPanelRef.current || !isPanelOpen) {
+      if (blur && searchInputRef.current) {
+        searchInputRef.current.blur();
+      }
+      return;
+    }
+
+    searchPanelRef.current.classList.remove('open');
+    searchPanelRef.current.setAttribute('aria-hidden', 'true');
+    setIsPanelOpen(false);
+
+    if (blur && searchInputRef.current) {
+      searchInputRef.current.blur();
+    }
+
+    // Перерисовываем карту
+    if (window.mapInstance) {
+      window.mapInstance.resize();
+    }
+  }, [isPanelOpen]);
+
   const renderSearchResults = useCallback((searchQuery = '') => {
     if (!searchResultsRef.current || !searchEmptyRef.current) return;
 
@@ -72,48 +113,7 @@ function SearchPanel({ events }) {
       li.addEventListener('click', onEventClick);
       searchResultsRef.current.appendChild(li);
     });
-  }, [closeSearchPanel, events]);
-
-  // Функции открытия/закрытия панели
-  const openSearchPanel = useCallback(() => {
-    if (!searchPanelRef.current || isPanelOpen) return;
-
-    // Обновляем offset для панели
-    document.documentElement.style.setProperty('--search-panel-offset', '82px');
-
-    searchPanelRef.current.classList.add('open');
-    searchPanelRef.current.setAttribute('aria-hidden', 'false');
-    setIsPanelOpen(true);
-
-    renderSearchResults(searchInputRef.current?.value ?? '');
-
-    // Перерисовываем карту
-    if (window.mapInstance) {
-      window.mapInstance.resize();
-    }
-  }, [isPanelOpen, renderSearchResults]);
-
-  const closeSearchPanel = useCallback(({ blur = true } = {}) => {
-    if (!searchPanelRef.current || !isPanelOpen) {
-      if (blur && searchInputRef.current) {
-        searchInputRef.current.blur();
-      }
-      return;
-    }
-
-    searchPanelRef.current.classList.remove('open');
-    searchPanelRef.current.setAttribute('aria-hidden', 'true');
-    setIsPanelOpen(false);
-
-    if (blur && searchInputRef.current) {
-      searchInputRef.current.blur();
-    }
-
-    // Перерисовываем карту
-    if (window.mapInstance) {
-      window.mapInstance.resize();
-    }
-  }, [isPanelOpen]);
+  }, [events]);
 
   useEffect(() => {
     debounce(() => {
