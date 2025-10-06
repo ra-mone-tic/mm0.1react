@@ -1,11 +1,9 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import { searchEvents } from '../utils/search.js';
 import { debounce } from '../utils/time.js';
 
 function SearchPanel({ events }) {
   const [query, setQuery] = useState('');
-  const [results, setResults] = useState([]);
-  const [selectedIndex, setSelectedIndex] = useState(-1);
   const [isPanelOpen, setIsPanelOpen] = useState(false);
   const [dragStartY, setDragStartY] = useState(null);
 
@@ -15,19 +13,20 @@ function SearchPanel({ events }) {
   const searchEmptyRef = useRef(null);
   const searchLabelRef = useRef(null);
 
-  // Debounced поиск
-  const debouncedSearch = debounce((searchQuery) => {
-    const found = searchEvents(events, searchQuery);
-    setResults(found);
-    setSelectedIndex(-1);
-  }, 300);
+  // Memoized debounced search function
+  const debouncedSearch = useCallback(
+    debounce((searchQuery) => {
+      renderSearchResults(searchQuery);
+    }, 300),
+    [events]
+  );
 
   useEffect(() => {
     debouncedSearch(query);
-  }, [query, events]);
+  }, [query, debouncedSearch]);
 
   // Функции открытия/закрытия панели
-  const openSearchPanel = () => {
+  const openSearchPanel = useCallback(() => {
     if (!searchPanelRef.current || isPanelOpen) return;
 
     // Обновляем offset для панели
@@ -43,9 +42,9 @@ function SearchPanel({ events }) {
     if (window.mapInstance) {
       window.mapInstance.resize();
     }
-  };
+  }, [isPanelOpen]);
 
-  const closeSearchPanel = ({ blur = true } = {}) => {
+  const closeSearchPanel = useCallback(({ blur = true } = {}) => {
     if (!searchPanelRef.current || !isPanelOpen) {
       if (blur && searchInputRef.current) {
         searchInputRef.current.blur();
@@ -65,7 +64,7 @@ function SearchPanel({ events }) {
     if (window.mapInstance) {
       window.mapInstance.resize();
     }
-  };
+  }, [isPanelOpen]);
 
   const renderSearchResults = (searchQuery = '') => {
     if (!searchResultsRef.current || !searchEmptyRef.current) return;
@@ -160,7 +159,6 @@ function SearchPanel({ events }) {
 
   const clearSearch = () => {
     setQuery('');
-    setResults([]);
     searchInputRef.current?.focus();
     renderSearchResults('');
   };

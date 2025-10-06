@@ -37,8 +37,6 @@ function Header({ selectedDate, onDateChange, onToggleSidebar }) {
       <button
         id="burger"
         aria-label="Открыть список событий"
-        role="button"
-        tabIndex={0}
         onClick={onToggleSidebar}
       >
         ☰

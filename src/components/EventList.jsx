@@ -24,7 +24,7 @@ function EventList({ events, selectedDate, onEventClick, showingArchive = false 
     });
 
     return groupEventsByDate(upcomingEvents, DEVICE_TODAY);
-  }, [events, showingArchive, selectedDate]);
+  }, [events, showingArchive]);
 
   if (!events.length) {
     return (

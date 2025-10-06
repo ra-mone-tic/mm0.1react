@@ -129,7 +129,6 @@ function getTimeAgoForEvent(eventDateStr, endTimeStr, startTimeStr) {
 export function groupEventsByDate(events, todayStr) {
   const grouped = {};
   const today = new Date();
-  const todayIndex = today.getDay();
 
   events.forEach(event => {
     let header = '';

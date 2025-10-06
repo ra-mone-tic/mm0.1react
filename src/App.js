@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import Header from './components/Header';
 import MapContainer from './components/MapContainer';
 import Sidebar from './components/Sidebar';
@@ -28,9 +28,9 @@ function App() {
     window.focusEvent = focusEvent;
   }, []);
 
-  const toggleSearchPanel = (open) => {
+  const toggleSearchPanel = useCallback((open) => {
     setShowSearchPanel(open => open !== undefined ? open : !open);
-  };
+  }, []);
 
   // Закрытие панелей при клике вне
   const handleLayoutClick = (e) => {

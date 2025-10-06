@@ -1,6 +1,6 @@
 import maplibregl from 'maplibre-gl';
-import { getEventDateLabel, extractTimeFromText, getTimeAgoText } from './time.js';
-import { CACHE_URL, JSON_URL } from '../config.js';
+import { getEventDateLabel } from './time.js';
+import { CACHE_URL } from '../config.js';
 
 // Переменные для кэша геокоординат
 let geocodeCache = {};
@@ -209,7 +209,6 @@ export function addMarker(event, onSelectEvent, map) {
   function toggleText(popupEl) {
     const shortText = popupEl.querySelector('.popup-text-short');
     const fullText = popupEl.querySelector('.popup-text-full');
-    const handle = popupEl.querySelector('.popup-handle');
 
     if (!shortText || !fullText) return;
 

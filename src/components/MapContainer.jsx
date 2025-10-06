@@ -1,4 +1,4 @@
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useCallback } from 'react';
 import maplibregl from 'maplibre-gl';
 import { MAP_OPTIONS } from '../config.js';
 import { clearMarkers, addMarker, CustomNavigationControl } from '../utils/map.js';
@@ -34,11 +34,13 @@ function MapContainer({ events, selectedDate, selectedEvent, onEventSelect }) {
     window.currentMap = map;
     window.mapInstance = map;
 
-    map.on('load', () => {
+    const onMapLoad = () => {
       console.log('Карта загружена');
       // Ждем немного и рендерим события
       setTimeout(() => renderDayEvents(), 100);
-    });
+    };
+
+    map.on('load', onMapLoad);
 
     mapInstanceRef.current = map;
 
@@ -52,7 +54,7 @@ function MapContainer({ events, selectedDate, selectedEvent, onEventSelect }) {
         }
       }
     };
-  }, []);
+  }, [renderDayEvents]);
 
   // Эффект для рендера событий при изменении даты
   useEffect(() => {
@@ -72,7 +74,7 @@ function MapContainer({ events, selectedDate, selectedEvent, onEventSelect }) {
     }
   }, [selectedEvent]);
 
-  const renderDayEvents = () => {
+  const renderDayEvents = useCallback(() => {
     if (!mapInstanceRef.current) return;
 
     clearMarkers();
@@ -87,7 +89,7 @@ function MapContainer({ events, selectedDate, selectedEvent, onEventSelect }) {
         zoom: dayEvents.length > 1 ? 12 : 14
       });
     }
-  };
+  }, [events, selectedDate, onEventSelect]);
 
   return (
     <div className="map-container-wrapper">
