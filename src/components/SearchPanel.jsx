@@ -72,7 +72,7 @@ function SearchPanel({ events }) {
       li.addEventListener('click', onEventClick);
       searchResultsRef.current.appendChild(li);
     });
-  }, []);
+  }, [closeSearchPanel, events]);
 
   // Функции открытия/закрытия панели
   const openSearchPanel = useCallback(() => {
