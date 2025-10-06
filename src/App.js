@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect } from 'react';
 import Header from './components/Header';
 import MapContainer from './components/MapContainer';
 import Sidebar from './components/Sidebar';
@@ -18,15 +18,12 @@ function App() {
     setShowSidebar(false); // Закрыть сайдбар при выборе
   };
 
-  // Функция для фокуса события (для поиска)
-  const focusEvent = (event) => {
-    handleEventSelect(event);
-  };
-
   // Устанавливаем глобальную функцию для поиска
   useEffect(() => {
-    window.focusEvent = focusEvent;
-  }, [focusEvent]);
+    window.focusEvent = (event) => {
+      handleEventSelect(event);
+    };
+  }, []);
 
 
 

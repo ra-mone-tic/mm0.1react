@@ -30,7 +30,7 @@ function SearchPanel({ events }) {
     if (window.mapInstance) {
       window.mapInstance.resize();
     }
-  }, [isPanelOpen]);
+  }, [isPanelOpen, renderSearchResults]);
 
   const closeSearchPanel = useCallback(({ blur = true } = {}) => {
     if (!searchPanelRef.current || !isPanelOpen) {
@@ -114,17 +114,11 @@ function SearchPanel({ events }) {
     });
   }, [events]);
 
-  // Memoized debounced search function
-  const debouncedSearch = useCallback(
-    debounce((searchQuery) => {
-      renderSearchResults(searchQuery);
-    }, 300),
-    [renderSearchResults]
-  );
-
   useEffect(() => {
-    debouncedSearch(query);
-  }, [query, debouncedSearch]);
+    debounce(() => {
+      renderSearchResults(query);
+    }, 300)();
+  }, [query, renderSearchResults]);
 
   // Обработчики
   const handleInputFocus = () => {

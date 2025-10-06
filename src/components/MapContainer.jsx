@@ -78,7 +78,7 @@ function MapContainer({ events, selectedDate, selectedEvent, onEventSelect }) {
     if (mapInstanceRef.current && events.length) {
       renderDayEvents();
     }
-  }, [selectedDate, events]);
+  }, [selectedDate, events, renderDayEvents]);
 
   // Эффект для выделения события
   useEffect(() => {
