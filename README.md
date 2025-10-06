@@ -1,70 +1,108 @@
-# Getting Started with Create React App
+# Meow Map 🗺️
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+Интерактивная карта концертов и мероприятий на React. Полностью переписано из оригинального проекта mm0.1 с использованием современных технологий.
 
-## Available Scripts
+🚀 **Live demo**: [GitHub Pages](https://ra-mone-tic.github.io/meow-_-map/)
 
-In the project directory, you can run:
+## Особенности
 
-### `npm start`
+- ⚛️ React + TypeScript архитектура
+- 🗺️ MapLibre GL для отображения карты
+- 🎨 Темы: минimal, dark, colorful, monochrome
+- 🔍 Умный поиск событий
+- 📱 Адаптивный дизайн для мобильных
+- 🤖 Автообновление событий из VK
+- 🌐 GitHub Pages deployment
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
+## Запуск локально
 
-The page will reload when you make changes.\
-You may also see any lint errors in the console.
+```bash
+# Клонировать репозиторий
+git clone https://github.com/ra-mone-tic/meow-_-map.git
+cd meow-_-map
 
-### `npm test`
+# Установить зависимости React
+npm install
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+# Запустить dev server
+npm start
+# Откроется http://localhost:3000
+```
 
-### `npm run build`
+## Структура проекта
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+```
+src/
+├── components/        # React компоненты
+│   ├── Header.jsx     # Заголовок с темами и датами
+│   ├── MapContainer.jsx # Карта с маркерами
+│   ├── SearchPanel.jsx   # Панель поиска
+│   └── Sidebar.jsx      # Список событий
+├── utils/             # Утилиты
+│   ├── map.js         # Логика карты и маркеров
+│   ├── search.js      # Поиск по событиям
+│   └── time.js        # Работа с датами
+└── hooks/             # React хуки
+    └── useEvents.js   # Загрузка данных событий
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+public/
+├── events.json        # События (автообновляется)
+├── geocode_cache.json # Кэш координат
+└── index.html         # HTML с функция copyShareLink
+```
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+## Автообновление данных
 
-### `npm run eject`
+Система автоматически актуализирует события из VK паблика **meowafisha** каждые 2 часа через GitHub Actions.
 
-**Note: this is a one-way operation. Once you `eject`, you can't go back!**
+### Настройка секретов в GitHub
 
-If you aren't satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+Для работы автообновления нужно добавить секреты в Settings > Secrets and variables > Actions:
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you're on your own.
+- `VK_TOKEN` - токен VK API (с правами wall)
+- `YANDEX_KEY` - ключ Яндекс.Геокодера (опционально)
+- `NOMINATIM_USER_AGENT` - идентификатор для Nominatim (опционально)
 
-You don't have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn't feel obligated to use this feature. However we understand that this tool wouldn't be useful if you couldn't customize it when you are ready for it.
+## Ручное обновление
 
-## Learn More
+Если нужно обновить события вручную:
 
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
+```bash
+# Установить Py dependencies
+pip install -r requirements.txt
 
-To learn React, check out the [React documentation](https://reactjs.org/).
+# Запустить скрипт
+python fetch_events.py
+```
 
-### Code Splitting
+## Deploy на GitHub Pages
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
+Автоматически деплойится при push в main:
 
-### Analyzing the Bundle Size
+```bash
+git add .
+git commit -m "Update"
+git push origin main
+```
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
+Страницу нужно включить в Settings > Pages:
+- Source: GitHub Actions
+- Появится автоматически после первого deployment
 
-### Making a Progressive Web App
+## Технические детали
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
+- **Pop-up логика**: expand/collapse с gesture support
+- **Темы**: CSS переменные и data-theme attribute
+- **Поиск**: транслитерация EN ⇄ RU
+- **Кэширование**: координаты хранятся в geocode_cache.json
+- **Responsive**: mobile-first подход
 
-### Advanced Configuration
+## Команды
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
+```bash
+npm start     # Development server
+npm run build # Production build
+npm test      # Unit tests (пока пустые)
 
-### Deployment
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
-
-### `npm run build` fails to minify
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
+python fetch_events.py # Обновление данных VK
+```
