@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="ru" data-theme="minimal">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>MeowMap: карта событий</title>
+
+  <!-- Подключаем стили MapLibre -->
+  <link href="https://unpkg.com/maplibre-gl@2.4.0/dist/maplibre-gl.css" rel="stylesheet"/>
+
+  <link rel="icon" href="%PUBLIC_URL%/favicon.ico" />
+  <link rel="apple-touch-icon" href="%PUBLIC_URL%/logo192.png" />
+  <link rel="manifest" href="%PUBLIC_URL%/manifest.json" />
+</head>
+<body>
+  <noscript>You need to enable JavaScript to run this app.</noscript>
+  <div id="root"></div>
+
+  <!-- Toast для копирования -->
+  <div id="copy-toast" role="status" aria-live="polite" hidden>
+    Ссылка скопирована
+  </div>
+
+  <script>
+    // Функция копирования ссылок
+    window.copyShareLink = async function copyShareLink(id) {
+      const url = new URL(window.location.href);
+      url.searchParams.set('event', id);
+      const shareUrl = url.toString();
+
+      try {
+        if (navigator.clipboard?.writeText) {
+          await navigator.clipboard.writeText(shareUrl);
+          showCopyToast();
+        } else {
+          // Fallback для старых браузеров
+          const textarea = document.createElement('textarea');
+          textarea.value = shareUrl;
+          textarea.style.position = 'fixed';
+          textarea.style.left = '-9999px';
+          textarea.style.top = '-9999px';
+          textarea.style.opacity = '0';
+          document.body.appendChild(textarea);
+          textarea.focus();
+          textarea.select();
+
+          const successful = document.execCommand('copy');
+          document.body.removeChild(textarea);
+
+          if (successful) {
+            showCopyToast();
+          } else {
+            throw new Error('Copy command failed');
+          }
+        }
+      } catch (error) {
+        console.error('Failed to copy link:', error);
+        showCopyToast('Не удалось скопировать ссылку');
+      }
+    };
+
+    function showCopyToast(message = 'Ссылка скопирована') {
+      const toast = document.getElementById('copy-toast');
+      if (!toast) return;
+      toast.textContent = message;
+      toast.hidden = false;
+      toast.classList.add('is-visible');
+      clearTimeout(toast._timer);
+      toast._timer = setTimeout(() => {
+        toast.classList.remove('is-visible');
+        toast._timer = setTimeout(() => {
+          if (!toast.classList.contains('is-visible')) {
+            toast.hidden = true;
+          }
+        }, 200);
+      }, 2000);
+    }
+  </script>
+</body>
+</html>
