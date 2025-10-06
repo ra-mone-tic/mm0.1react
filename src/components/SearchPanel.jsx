@@ -13,6 +13,47 @@ function SearchPanel({ events }) {
   const searchEmptyRef = useRef(null);
   const searchLabelRef = useRef(null);
 
+  // Функции открытия/закрытия панели
+  const openSearchPanel = useCallback(() => {
+    if (!searchPanelRef.current || isPanelOpen) return;
+
+    // Обновляем offset для панели
+    document.documentElement.style.setProperty('--search-panel-offset', '82px');
+
+    searchPanelRef.current.classList.add('open');
+    searchPanelRef.current.setAttribute('aria-hidden', 'false');
+    setIsPanelOpen(true);
+
+    renderSearchResults(searchInputRef.current?.value ?? '');
+
+    // Перерисовываем карту
+    if (window.mapInstance) {
+      window.mapInstance.resize();
+    }
+  }, [isPanelOpen]);
+
+  const closeSearchPanel = useCallback(({ blur = true } = {}) => {
+    if (!searchPanelRef.current || !isPanelOpen) {
+      if (blur && searchInputRef.current) {
+        searchInputRef.current.blur();
+      }
+      return;
+    }
+
+    searchPanelRef.current.classList.remove('open');
+    searchPanelRef.current.setAttribute('aria-hidden', 'true');
+    setIsPanelOpen(false);
+
+    if (blur && searchInputRef.current) {
+      searchInputRef.current.blur();
+    }
+
+    // Перерисовываем карту
+    if (window.mapInstance) {
+      window.mapInstance.resize();
+    }
+  }, [isPanelOpen]);
+
   const renderSearchResults = useCallback((searchQuery = '') => {
     if (!searchResultsRef.current || !searchEmptyRef.current) return;
 
@@ -71,7 +112,19 @@ function SearchPanel({ events }) {
 
       searchResultsRef.current.appendChild(li);
     });
-  };
+  }, [events]);
+
+  // Memoized debounced search function
+  const debouncedSearch = useCallback(
+    debounce((searchQuery) => {
+      renderSearchResults(searchQuery);
+    }, 300),
+    [renderSearchResults]
+  );
+
+  useEffect(() => {
+    debouncedSearch(query);
+  }, [query, debouncedSearch]);
 
   // Обработчики
   const handleInputFocus = () => {
@@ -110,6 +163,10 @@ function SearchPanel({ events }) {
     renderSearchResults('');
   };
 
+  const handleHandleClick = () => {
+    closeSearchPanel();
+  };
+
   // Gesture handlers
   useEffect(() => {
     const panel = searchPanelRef.current;
@@ -143,7 +200,7 @@ function SearchPanel({ events }) {
       panel.removeEventListener('pointerdown', handlePointerDown);
       panel.removeEventListener('pointermove', handlePointerMove);
     };
-  }, [dragStartY]);
+  }, [dragStartY, closeSearchPanel]);
 
   // Document handlers
   useEffect(() => {
@@ -169,11 +226,7 @@ function SearchPanel({ events }) {
       document.removeEventListener('pointerdown', handleDocumentPointerDown);
       document.removeEventListener('keydown', handleDocumentKeyDown);
     };
-  }, [isPanelOpen]);
-
-  const handleHandleClick = () => {
-    closeSearchPanel();
-  };
+  }, [isPanelOpen, closeSearchPanel]);
 
   return (
     <>
@@ -217,7 +270,7 @@ function SearchPanel({ events }) {
         aria-label="Результаты поиска"
       >
         <div className="search-panel__handle" aria-hidden="true" onClick={handleHandleClick}></div>
-        <p ref={searchLabelRef} id="search-label" className="search-panel__label">Подсказки</p>
+        <p ref={searchLabelRef} id="search-label" className="search-panel__label">Подказки</p>
         <ul ref={searchResultsRef} id="search-results" role="listbox" aria-label="Результаты поиска"></ul>
         <p ref={searchEmptyRef} id="search-empty" className="search-panel__empty">Загрузка данных…</p>
       </section>
