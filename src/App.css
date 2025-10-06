@@ -1,533 +1,235 @@
-/* Основные переменные для темы */
-:root {
-  --surface-0: #ffffff;
-  --surface-1: #f8f9fa;
-  --surface-2: #e9ecef;
-  --text-0: #212529;
-  --text-1: #6c757d;
-  --brand: #007bff;
-  --border: 1px solid #dee2e6;
-  --radius-sm: 4px;
-  --radius-md: 8px;
-  --fx-fast: 0.15s;
-  --fx-slow: 0.3s;
-  --shadow-sm: 0 2px 4px rgba(0,0,0,0.1);
-  --shadow-md: 0 4px 12px rgba(0,0,0,0.15);
-  --font-ui: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+/* Основные стили */
+body {
+  margin: 0;
+  font-family: 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  background-color: var(--bg, #f5f5f5);
 }
 
+/* Переменные для тем */
+:root {
+  --bg: #f5f5f5;
+  --surface-1: #ffffff;
+  --surface-2: #f8f9fa;
+  --text-0: #000000;
+  --text-1: #6c757d;
+  --text-2: #adb5bd;
+  --border: #dee2e6;
+  --primary: #007bff;
+  --radius-sm: 4px;
+  --radius: 8px;
+  --radius-xs: 2px;
+  --fade-duration: 0.2s;
+}
+
+/* Темные темы */
 [data-theme="dark"] {
-  --surface-0: #1a1a1a;
-  --surface-1: #2d2d2d;
-  --surface-2: #404040;
+  --bg: #121212;
+  --surface-1: #1e1e1e;
+  --surface-2: #2a2a2a;
   --text-0: #ffffff;
-  --text-1: #cccccc;
-  --brand: #0066cc;
-  --border: 1px solid #555555;
-  --shadow-sm: 0 2px 4px rgba(0,0,0,0.4);
-  --shadow-md: 0 4px 12px rgba(0,0,0,0.5);
+  --text-1: #a8a8a8;
+  --text-2: #666666;
+  --border: #333333;
+  --primary: #4dabf7;
 }
 
 [data-theme="colorful"] {
-  --surface-0: #fff8e1;
-  --surface-1: #ffe0b2;
-  --surface-2: #ffcc02;
-  --text-0: #f57f17;
-  --text-1: #ff9800;
-  --brand: #ffb300;
-  --border: 1px solid #ff9800;
-  --shadow-sm: 0 2px 4px rgba(255, 152, 0, 0.2);
-  --shadow-md: 0 4px 12px rgba(255, 152, 0, 0.3);
-}
-
-[data-theme="monochrome"] {
-  --surface-0: #000000;
-  --surface-1: #333333;
-  --surface-2: #666666;
+  --bg: #0f0f23;
+  --surface-1: #1a1a2e;
+  --surface-2: #16213e;
   --text-0: #ffffff;
-  --text-1: #cccccc;
-  --brand: #aaaaaa;
-  --border: 1px solid #999999;
-  --shadow-sm: 0 2px 4px rgba(0,0,0,0.8);
-  --shadow-md: 0 4px 12px rgba(0,0,0,0.9);
+  --text-1: #a2d2ff;
+  --text-2: #4ecca3;
+  --border: #0f3460;
+  --primary: #e94560;
 }
 
-[data-theme="dark"] .leaflet-popup-content-wrapper {
-  background: var(--surface-1) !important;
-  color: var(--text-0) !important;
+[data-theme="minimal"] {
+  --bg: #ffffff;
+  --surface-1: #fafbfc;
+  --surface-2: #f1f3f4;
+  --text-0: #2c2c2c;
+  --text-1: #6c757d;
+  --text-2: #9ca3af;
+  --border: #e5e7eb;
+  --primary: #3b82f6;
 }
 
-[data-theme="dark"] .leaflet-popup-content {
-  color: var(--text-0) !important;
-}
-
-/* Общие стили */
+/* Приложение */
 .app {
-  height: 100vh;
   display: flex;
   flex-direction: column;
-  background: var(--surface-0);
-  color: var(--text-0);
-  font-family: var(--font-ui);
+  min-height: 100vh;
+  position: relative;
 }
 
+/* Layout */
 .layout {
+  display: flex;
   flex: 1;
-  display: flex;
   position: relative;
 }
 
-/* Header */
-.app-header {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  padding: 12px;
-  background: var(--surface-1);
-  border-bottom: var(--border);
-  flex-wrap: wrap;
-}
-
-#event-date {
-  font-size: 16px;
-  min-height: 44px;
-  padding: 8px 12px;
-  border-radius: var(--radius-sm);
-  border: var(--border);
-  background: var(--surface-0);
-  cursor: pointer;
-}
-
-#logo {
-  height: 40px;
-  max-width: 100%;
-  cursor: pointer;
-  min-height: 44px;
-  display: flex;
-  align-items: center;
-  padding: 2px;
-  border-radius: var(--radius-xs);
-  transition: background var(--fx-fast);
-}
-
-#logo:hover {
-  background: var(--surface-2);
-}
-
-#burger {
-  cursor: pointer;
-  font-size: 22px;
-  color: var(--text-0);
-  margin-left: auto;
-  user-select: none;
+.layout .map-container-wrapper {
+  flex: 1;
+  height: calc(100vh - 60px);
   position: relative;
-  z-index: 1300;
-  background: var(--surface-1);
-  padding: 8px;
-  border-radius: var(--radius-xs);
-  transition: background var(--fx-fast);
-  min-height: 44px;
-  min-width: 44px;
+}
+
+.layout .sidebar {
+  width: 320px;
+  background-color: var(--surface-1);
+  border-left: 1px solid var(--border);
   display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-#burger:hover {
-  background: var(--surface-2);
-}
-
-#burger:focus-visible {
-  outline: 3px solid color-mix(in srgb, var(--brand) 55%, transparent);
-  outline-offset: 2px;
+  flex-direction: column;
+  box-sizing: border-box;
+  z-index: 100;
 }
 
 /* Карта */
-.map-container-wrapper {
-  flex: 1;
-  position: relative;
-}
-
 .map-container {
   width: 100%;
   height: 100%;
-  position: absolute;
+  position: relative;
 }
 
-/* Sidebar */
+.map-container-wrapper {
+  position: relative;
+}
+
+/* Боковая панель */
 .sidebar {
-  position: fixed;
-  right: 0;
-  top: 60px;
-  height: calc(100vh - 85px);
-  width: 320px;
-  background: var(--surface-1);
-  border-left: var(--border);
-  border-top: var(--border);
-  border-bottom-left-radius: var(--radius-md);
-  box-shadow: var(--shadow-sm);
-  padding: 12px;
-  padding-bottom: 0;
-  font-size: 14px;
+  height: calc(100vh - 60px);
   overflow-y: auto;
-  transform: translateX(100%);
-  transition: transform 0.3s;
-  z-index: 1200;
+  border-left: 1px solid var(--border);
+  background-color: var(--surface-1);
 }
 
-.sidebar.open {
-  transform: translateX(0);
+.sidebar-header {
+  padding: 1rem;
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
 }
 
-.sidebar h3 {
-  margin: 0 0 16px 0;
-  font-size: 18px;
+.sidebar-header h2 {
+  margin: 0;
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: var(--text-0);
 }
 
-.sidebar hr {
-  margin: 16px 0;
-  border: 0;
-  border-top: var(--border);
+/* Заголовок секций */
+.section-header {
+  padding: 0.75rem 1rem;
+  background-color: var(--surface-2);
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
 }
 
-/* Event List */
-.event-list {
-  margin-bottom: 16px;
+.section-header h3 {
+  margin: 0;
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--text-0);
 }
 
-.day-section-header {
-  margin: 16px 0 8px 0;
-  padding: 4px 8px;
-  background: var(--surface-2);
-  border-radius: var(--radius-sm);
-  font-size: 12px;
-  font-weight: bold;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-  color: var(--text-1);
-  border-left: 3px solid var(--brand);
+.section-header .count {
+  background-color: var(--primary);
+  color: white;
+  padding: 0.25rem 0.5rem;
+  border-radius: var(--radius-xs);
+  font-size: 0.75rem;
+  font-weight: 600;
 }
 
-.day-section-header.today {
-  color: var(--brand);
-  background: color-mix(in srgb, var(--brand) 10%, var(--surface-2));
-}
-
-/* Event Item */
+/* События */
 .event-item {
-  margin-bottom: 12px;
-  cursor: pointer;
-  padding: 8px;
-  border-bottom: var(--border);
-  border-radius: var(--radius-sm);
-  transition: background var(--fx-fast), transform var(--fx-fast);
+  display: block;
+  padding: 1rem;
+  border-bottom: 1px solid var(--border);
+  text-decoration: none;
+  color: inherit;
+  transition: background-color var(--fade-duration);
 }
 
 .event-item:hover {
-  background: var(--surface-2);
+  background-color: var(--surface-2);
 }
 
-.event-item.is-active {
-  outline: 2px solid color-mix(in srgb, var(--brand) 55%, transparent);
-  border-radius: var(--radius-sm);
+.event-item.active {
+  background-color: var(--primary);
+  color: white;
 }
 
-.event-list-empty {
-  padding: 16px;
-  text-align: center;
-  color: var(--text-1);
+.event-item.active * {
+  color: white;
 }
 
-/* Sidebar Footer */
-.sidebar-footer {
-  position: sticky;
-  bottom: 0;
-  background: var(--surface-1);
-  padding: 8px 0;
-  text-align: right;
-}
-
-.sidebar-footer button {
-  padding: 6px 12px;
-  border: var(--border);
-  background: var(--surface-2);
-  border-radius: var(--radius-sm);
-  cursor: pointer;
+.event-item h4 {
+  margin: 0 0 0.5rem 0;
+  font-size: 1rem;
+  font-weight: 600;
   color: var(--text-0);
-  font-size: 14px;
+  line-height: 1.3;
 }
 
-/* Responsive */
-@media (max-width: 768px) {
-  #logo {
-    height: 32px;
-    min-height: 44px;
-    min-width: 44px;
-  }
-
-  .sidebar {
-    width: 80%;
-    max-width: 320px;
-  }
-}
-
-@media (max-width: 480px) {
-  .app-header {
-    gap: 4px;
-    padding: 8px 6px;
-  }
-
-  #event-date {
-    flex: 0 0 120px;
-  }
-
-  #logo {
-    height: 28px;
-  }
-
-  #burger {
-    font-size: 20px;
-    padding: 6px;
-  }
-}
-
-@media (max-width: 320px) {
-  .app-header {
-    flex-direction: column;
-    align-items: stretch;
-    gap: 4px;
-  }
-
-  #logo {
-    height: 24px;
-    align-self: center;
-    order: -1;
-  }
-
-  #event-date {
-    flex: 1;
-  }
-
-  #burger {
-    align-self: flex-end;
-  }
-}
-
-:root { --search-panel-offset: 0px; }
-
-/* Search Bar */
-.bottom-bar {
-  position: fixed;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  z-index: 900;
-  background: var(--surface-1);
-  border-top: var(--border);
-  box-shadow: 0 -12px 30px rgba(15, 18, 36, 0.1);
-  padding: 12px 16px calc(12px + env(safe-area-inset-bottom));
-  display: flex;
-  justify-content: center;
-}
-
-.bottom-bar__inner {
-  width: min(680px, 100%);
-  display: flex;
-  align-items: center;
-  gap: 12px;
-}
-
-.search-field {
-  flex: 1;
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  background: var(--surface-0);
-  border: var(--border);
-  border-radius: var(--radius-md);
-  padding: 10px 14px;
-  box-shadow: var(--shadow-sm);
-  transition: box-shadow var(--fx-fast), border-color var(--fx-fast);
-}
-
-.search-field:focus-within {
-  box-shadow: var(--shadow-md);
-  border-color: color-mix(in srgb, var(--brand) 55%, transparent);
-}
-
-.search-field__icon {
+.event-item .location {
   color: var(--text-1);
-  font-size: 18px;
-  display: inline-flex;
+  font-size: 0.875rem;
+  margin-bottom: 0.25rem;
 }
 
-#global-search {
-  flex: 1;
-  border: none;
-  background: transparent;
-  color: var(--text-0);
-  font-size: 16px;
+.event-item .date {
+  color: var(--text-2);
+  font-size: 0.75rem;
+  font-weight: 500;
+}
+
+/* Попапы (теперь они точно выше маркеров и других элементов) */
+.maplibre-popup {
+  z-index: 1500 !important;
   font-family: inherit;
-  min-width: 0;
 }
 
-#global-search::placeholder {
-  color: var(--text-1);
+.maplibre-popup-content {
+  background-color: var(--surface-1) !important;
+  color: var(--text-0) !important;
+  border: 1px solid var(--border) !important;
+  border-radius: var(--radius) !important;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15) !important;
+  font-size: 14px !important;
+  line-height: 1.4 !important;
 }
 
-#search-clear {
-  border: none;
-  background: transparent;
-  color: var(--text-1);
-  font-size: 20px;
-  cursor: pointer;
-  display: none;
-  padding: 2px;
-  line-height: 1;
+/* Попап стрела */
+.maplibre-popup-tip {
+  background-color: var(--surface-1) !important;
+  border-color: var(--border) !important;
 }
 
-#search-clear.is-visible {
-  display: inline-flex;
+/* Кнопка закрытия попапа */
+.maplibre-popup-close-button {
+  color: var(--text-1) !important;
+  font-size: 18px !important;
+  right: 8px !important;
+  top: 8px !important;
 }
 
-/* Search Panel */
-#search-panel {
-  position: fixed;
-  left: 0;
-  right: 0;
-  bottom: var(--search-panel-offset);
-  background: var(--surface-1);
-  border-top: var(--border);
-  box-shadow: 0 -18px 38px rgba(15, 18, 36, 0.18);
-  border-top-left-radius: var(--radius-md);
-  border-top-right-radius: var(--radius-md);
-  padding: 12px 16px 16px;
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-  max-height: min(70dvh, 520px);
-  transform: translateY(calc(100% + 32px));
-  opacity: 0;
-  pointer-events: none;
-  transition: transform var(--fx-slow), opacity var(--fx-fast);
-  z-index: 950;
-  touch-action: pan-y;
+.maplibre-popup-close-button:hover {
+  color: var(--text-0) !important;
 }
 
-#search-panel.open {
-  transform: translateY(0);
-  opacity: 1;
-  pointer-events: auto;
+/* Маркеры должны быть поверх всего кроме попапов */
+.mapboxgl-marker {
+  z-index: 1000 !important;
 }
 
-.search-panel__handle {
-  width: 46px;
-  height: 5px;
-  border-radius: 999px;
-  background: color-mix(in srgb, var(--text-1) 25%, transparent);
-  align-self: center;
-  cursor: grab;
-}
-
-.search-panel__label {
-  margin: 4px 0 0;
-  font-size: 0.8rem;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  color: var(--text-1);
-}
-
-#search-results {
-  margin: 0;
-  padding: 0;
-  list-style: none;
-  overflow-y: auto;
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-}
-
-#search-results li {
-  padding: 10px 12px;
-  border-radius: var(--radius-sm);
-  background: transparent;
-  cursor: pointer;
-  transition: background var(--fx-fast);
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-}
-
-#search-results li:hover,
-#search-results li.is-selected {
-  background: var(--surface-2);
-}
-
-#search-results li strong {
-  color: var(--text-0);
-  font-size: 0.95rem;
-}
-
-#search-results li span {
-  color: var(--text-1);
-  font-size: 0.85rem;
-}
-
-.search-panel__empty {
-  margin: 0;
-  padding: 12px;
-  text-align: center;
-  color: var(--text-1);
-  border-radius: var(--radius-sm);
-  background: var(--surface-2);
-}
-
-/* Responsive for search */
-@media (max-width: 768px) {
-  .bottom-bar__inner {
-    width: 100%;
-  }
-
-  .search-field {
-    padding: 8px 12px;
-  }
-
-  #global-search {
-    font-size: 15px;
-  }
-}
-
-@media (max-width: 480px) {
-  .bottom-bar {
-    padding: 10px 12px calc(10px + env(safe-area-inset-bottom));
-  }
-
-  .search-field {
-    padding: 8px 12px;
-  }
-}
-
-/* Copy Toast */
-#copy-toast {
-  position: fixed;
-  left: 16px;
-  bottom: calc(56px + 24px + env(safe-area-inset-bottom)); /* 24px — небольшой отступ */
-  transform: translate(0, 16px);
-  background: var(--surface-1);
-  border: var(--border);
-  border-radius: var(--radius-sm);
-  padding: 8px 14px;
-  font-size: 14px;
-  color: var(--text-0);
-  box-shadow: var(--shadow-md);
-  opacity: 0;
-  pointer-events: none;
-  transition: opacity var(--fx-fast), transform var(--fx-fast);
-  z-index: 1300;
-}
-
-#copy-toast.is-visible {
-  opacity: 1;
-  transform: translate(0, 0);
+.maplibregl-marker {
+  z-index: 1000 !important;
 }

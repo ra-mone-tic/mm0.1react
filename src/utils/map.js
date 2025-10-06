@@ -196,8 +196,20 @@ export function addMarker(event, onSelectEvent, map) {
 
   console.log('Добавляю маркер для:', event.title, [event.lon, event.lat]);
 
-  const popup = new maplibregl.Popup({ offset: 24, closeButton: false }).setHTML(popupTemplate(event));
-  const marker = new maplibregl.Marker().setLngLat([event.lon, event.lat]).setPopup(popup).addTo(targetMap);
+  // Принудительно ставим z-index выше для маркера
+  const popup = new maplibregl.Popup({
+    offset: 24,
+    closeButton: false,
+    className: 'custom-popup'
+  }).setHTML(popupTemplate(event));
+
+  const marker = new maplibregl.Marker({
+    color: '#FF6B6B', // Яркий цвет маркера
+    scale: 1.2 // Увеличенный размер
+  })
+  .setLngLat([event.lon, event.lat])
+  .setPopup(popup)
+  .addTo(targetMap);
   markers.push(marker);
   if (event.id) {
     markerById.set(event.id, marker);
