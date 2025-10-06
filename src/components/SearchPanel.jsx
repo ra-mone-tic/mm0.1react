@@ -13,26 +13,28 @@ function SearchPanel({ events }) {
   const searchEmptyRef = useRef(null);
   const searchLabelRef = useRef(null);
 
-  // Функции открытия/закрытия панели
-  const openSearchPanel = useCallback(() => {
-    if (!searchPanelRef.current || isPanelOpen) return;
-
-    // Обновляем offset для панели
+  // Простые функции без useCallback для внутренних операций
+  const updatePanelOffset = () => {
     document.documentElement.style.setProperty('--search-panel-offset', '82px');
+  };
 
-    searchPanelRef.current.classList.add('open');
-    searchPanelRef.current.setAttribute('aria-hidden', 'false');
-    setIsPanelOpen(true);
-
-    renderSearchResults(searchInputRef.current?.value ?? '');
-
-    // Перерисовываем карту
+  const resizeMap = () => {
     if (window.mapInstance) {
       window.mapInstance.resize();
     }
-  }, [isPanelOpen]);
+  };
 
-  const closeSearchPanel = useCallback(({ blur = true } = {}) => {
+  const openPanel = () => {
+    if (!searchPanelRef.current || isPanelOpen) return;
+
+    updatePanelOffset();
+    searchPanelRef.current.classList.add('open');
+    searchPanelRef.current.setAttribute('aria-hidden', 'false');
+    setIsPanelOpen(true);
+    resizeMap();
+  };
+
+  const closePanel = useCallback(({ blur = true } = {}) => {
     if (!searchPanelRef.current || !isPanelOpen) {
       if (blur && searchInputRef.current) {
         searchInputRef.current.blur();
@@ -48,12 +50,10 @@ function SearchPanel({ events }) {
       searchInputRef.current.blur();
     }
 
-    // Перерисовываем карту
-    if (window.mapInstance) {
-      window.mapInstance.resize();
-    }
+    resizeMap();
   }, [isPanelOpen]);
 
+  // Функция рендера результатов поиска
   const renderSearchResults = useCallback((searchQuery = '') => {
     if (!searchResultsRef.current || !searchEmptyRef.current) return;
 
@@ -75,7 +75,6 @@ function SearchPanel({ events }) {
         searchLabelRef.current.textContent = 'Подсказки';
       }
     } else {
-      // Генерируем все варианты транслитерации
       matches = searchEvents(events, normalized);
       matches = matches.slice(0, 20); // Ограничиваем
 
@@ -94,42 +93,39 @@ function SearchPanel({ events }) {
 
     searchEmptyRef.current.hidden = true;
 
-    matches.forEach((event, index) => {
+    matches.forEach((event) => {
       const li = document.createElement('li');
       li.dataset.eventId = event.id;
       li.setAttribute('role', 'option');
       li.tabIndex = 0;
       li.innerHTML = `<strong>${event.title}</strong><span>${event.location}</span><span>${event.date}</span>`;
 
-      // Use closure to access closeSearchPanel
-      const onEventClick = () => {
+      li.addEventListener('click', () => {
         const eventData = events.find(e => e.id === event.id);
         if (eventData && window.focusEvent) {
           window.focusEvent(eventData);
         }
-        closeSearchPanel();
-      };
+        closePanel();
+      });
 
-      li.addEventListener('click', onEventClick);
       searchResultsRef.current.appendChild(li);
     });
-  }, [events]);
+  }, [events, closePanel]);
 
+  // Debounced поиск
   useEffect(() => {
     debounce(() => {
       renderSearchResults(query);
     }, 300)();
-  }, [query, renderSearchResults]);
+  }, [query, events, renderSearchResults]);
 
-  // Обработчики
+  // Обработчики событий
   const handleInputFocus = () => {
-    openSearchPanel();
-    toggleClearButton();
+    openPanel();
   };
 
   const handleInputChange = (e) => {
     setQuery(e.target.value);
-    toggleClearButton();
 
     if (isPanelOpen) {
       renderSearchResults(e.target.value);
@@ -138,7 +134,7 @@ function SearchPanel({ events }) {
 
   const handleKeyDown = (e) => {
     if (e.key === 'Escape') {
-      closeSearchPanel();
+      closePanel();
     } else if (e.key === 'ArrowDown') {
       e.preventDefault();
       const firstItem = searchResultsRef.current?.firstElementChild;
@@ -148,10 +144,6 @@ function SearchPanel({ events }) {
     }
   };
 
-  const toggleClearButton = () => {
-    // Логика видимости кнопки очистки
-  };
-
   const clearSearch = () => {
     setQuery('');
     searchInputRef.current?.focus();
@@ -159,7 +151,7 @@ function SearchPanel({ events }) {
   };
 
   const handleHandleClick = () => {
-    closeSearchPanel();
+    closePanel();
   };
 
   // Gesture handlers
@@ -184,7 +176,7 @@ function SearchPanel({ events }) {
       const delta = e.clientY - dragStartY;
       if (delta > 80) {
         setDragStartY(null);
-        closeSearchPanel();
+        closePanel();
       }
     };
 
@@ -195,7 +187,7 @@ function SearchPanel({ events }) {
       panel.removeEventListener('pointerdown', handlePointerDown);
       panel.removeEventListener('pointermove', handlePointerMove);
     };
-  }, [dragStartY, closeSearchPanel]);
+  }, [dragStartY, closePanel]);
 
   // Document handlers
   useEffect(() => {
@@ -204,12 +196,12 @@ function SearchPanel({ events }) {
       if (searchPanelRef.current?.contains(e.target) || document.getElementById('bottomBar')?.contains(e.target)) {
         return;
       }
-      closeSearchPanel();
+      closePanel();
     };
 
     const handleDocumentKeyDown = (e) => {
       if (e.key === 'Escape' && isPanelOpen) {
-        closeSearchPanel();
+        closePanel();
         searchInputRef.current?.focus();
       }
     };
@@ -221,7 +213,7 @@ function SearchPanel({ events }) {
       document.removeEventListener('pointerdown', handleDocumentPointerDown);
       document.removeEventListener('keydown', handleDocumentKeyDown);
     };
-  }, [isPanelOpen, closeSearchPanel]);
+  }, [isPanelOpen, closePanel]);
 
   return (
     <>
