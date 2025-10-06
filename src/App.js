@@ -26,11 +26,9 @@ function App() {
   // Устанавливаем глобальную функцию для поиска
   useEffect(() => {
     window.focusEvent = focusEvent;
-  }, []);
+  }, [focusEvent]);
 
-  const toggleSearchPanel = useCallback((open) => {
-    setShowSearchPanel(open => open !== undefined ? open : !open);
-  }, []);
+
 
   // Закрытие панелей при клике вне
   const handleLayoutClick = (e) => {

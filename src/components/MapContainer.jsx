@@ -7,6 +7,23 @@ function MapContainer({ events, selectedDate, selectedEvent, onEventSelect }) {
   const mapContainerRef = useRef(null);
   const mapInstanceRef = useRef(null);
 
+  const renderDayEvents = useCallback(() => {
+    if (!mapInstanceRef.current) return;
+
+    clearMarkers();
+
+    const dayEvents = events.filter(e => e.date === selectedDate);
+    dayEvents.forEach(event => addMarker(event, onEventSelect, mapInstanceRef.current));
+
+    if (dayEvents.length > 0) {
+      const first = dayEvents[0];
+      mapInstanceRef.current.flyTo({
+        center: [first.lon, first.lat],
+        zoom: dayEvents.length > 1 ? 12 : 14
+      });
+    }
+  }, [events, selectedDate, onEventSelect]);
+
   useEffect(() => {
     if (!mapContainerRef.current) return;
 
@@ -73,23 +90,6 @@ function MapContainer({ events, selectedDate, selectedEvent, onEventSelect }) {
       });
     }
   }, [selectedEvent]);
-
-  const renderDayEvents = useCallback(() => {
-    if (!mapInstanceRef.current) return;
-
-    clearMarkers();
-
-    const dayEvents = events.filter(e => e.date === selectedDate);
-    dayEvents.forEach(event => addMarker(event, onEventSelect, mapInstanceRef.current));
-
-    if (dayEvents.length > 0) {
-      const first = dayEvents[0];
-      mapInstanceRef.current.flyTo({
-        center: [first.lon, first.lat],
-        zoom: dayEvents.length > 1 ? 12 : 14
-      });
-    }
-  }, [events, selectedDate, onEventSelect]);
 
   return (
     <div className="map-container-wrapper">
