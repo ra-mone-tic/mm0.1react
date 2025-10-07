@@ -14,14 +14,6 @@ function MapContainer({ events, selectedDate, selectedEvent, onEventSelect }) {
 
     const dayEvents = events.filter(e => e.date === selectedDate);
     dayEvents.forEach(event => addMarker(event, onEventSelect, mapInstanceRef.current));
-
-    if (dayEvents.length > 0) {
-      const first = dayEvents[0];
-      mapInstanceRef.current.flyTo({
-        center: [first.lon, first.lat],
-        zoom: dayEvents.length > 1 ? 12 : 14
-      });
-    }
   }, [events, selectedDate, onEventSelect]);
 
   useEffect(() => {
@@ -52,9 +44,7 @@ function MapContainer({ events, selectedDate, selectedEvent, onEventSelect }) {
     window.mapInstance = map;
 
     const onMapLoad = () => {
-      console.log('Карта загружена');
-      // Ждем немного и рендерим события
-      setTimeout(() => renderDayEvents(), 100);
+      renderDayEvents();
     };
 
     map.on('load', onMapLoad);
@@ -71,7 +61,7 @@ function MapContainer({ events, selectedDate, selectedEvent, onEventSelect }) {
         }
       }
     };
-  }, [renderDayEvents]);
+  }, []);
 
   // Эффект для рендера событий при изменении даты
   useEffect(() => {

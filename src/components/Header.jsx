@@ -34,13 +34,15 @@ function Header({ selectedDate, onDateChange, onToggleSidebar }) {
         alt="Meow Records"
         onClick={handleLogoClick}
       />
-      <button
-        id="burger"
-        aria-label="Открыть список событий"
-        onClick={onToggleSidebar}
-      >
-        ☰
-      </button>
+      <div onClick={(e) => e.stopPropagation()}>
+        <button
+          id="burger"
+          aria-label="Открыть список событий"
+          onClick={() => onToggleSidebar()}
+        >
+          ☰
+        </button>
+      </div>
     </header>
   );
 }
