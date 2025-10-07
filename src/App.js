@@ -29,12 +29,9 @@ function App() {
 
   // Закрытие панелей при клике вне
   const handleLayoutClick = (e) => {
-    if (showSidebar && !e.target.closest('.sidebar') && !e.target.closest('#burger') && !e.target.closest('#event-date')) {
+    // Закрываем сайдбар при клике вне
+    if (showSidebar && !e.target.closest('.sidebar') && !e.target.closest('#burger')) {
       setShowSidebar(false);
-    }
-    // Для поиска - закрываем только при клике вне всей области поиска
-    if (showSearchPanel && !e.target.closest('.layout') && !e.target.closest('.bottom-bar') && !e.target.closest('#search-panel')) {
-      setShowSearchPanel(false);
     }
   };
 

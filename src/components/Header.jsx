@@ -20,7 +20,7 @@ function Header({ selectedDate, onDateChange, onToggleSidebar }) {
   return (
     <header className="app-header">
       <label htmlFor="event-date">
-        <span aria-hidden="true">📅</span> Дата:
+        📅 Дата:
       </label>
       <input
         type="date"

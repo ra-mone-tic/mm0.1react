@@ -14,13 +14,11 @@ function SearchPanel({ events }) {
   const searchLabelRef = useRef(null);
 
   // Простые функции без useCallback для внутренних операций
-  const updatePanelOffset = () => {
-    document.documentElement.style.setProperty('--search-panel-offset', '82px');
-  };
-
   const resizeMap = () => {
     if (window.mapInstance) {
-      window.mapInstance.resize();
+      setTimeout(() => {
+        window.mapInstance.resize();
+      }, 350); // Даем время на анимацию панели
     }
   };
 
@@ -257,9 +255,9 @@ function SearchPanel({ events }) {
         aria-label="Результаты поиска"
       >
         <div className="search-panel__handle" aria-hidden="true" onClick={handleHandleClick}></div>
-        <p ref={searchLabelRef} id="search-label" className="search-panel__label">Подказки</p>
+        <p ref={searchLabelRef} className="search-panel__label">Подсказки</p>
         <ul ref={searchResultsRef} id="search-results" role="listbox" aria-label="Результаты поиска"></ul>
-        <p ref={searchEmptyRef} id="search-empty" className="search-panel__empty">Загрузка данных…</p>
+        <p ref={searchEmptyRef} className="search-panel__empty">Загрузка данных…</p>
       </section>
     </>
   );

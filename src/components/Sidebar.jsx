@@ -44,8 +44,9 @@ function Sidebar({
 
   return (
     <aside className={`sidebar ${isOpen ? 'open' : ''}`} aria-label="Список событий">
-      <h3>События</h3>
-      <hr />
+      <div className="sidebar-header">
+        <h2>События</h2>
+      </div>
       <div className="sidebar-content">
         {loading ? (
           <div className="loading">Загрузка событий...</div>
