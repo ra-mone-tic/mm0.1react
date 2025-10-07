@@ -1,7 +1,7 @@
 // Конфигурация приложения
 
-export const JSON_URL = 'events.json';
-export const CACHE_URL = 'geocode_cache.json';
+export const JSON_URL = `${process.env.PUBLIC_URL || ''}/events.json`;
+export const CACHE_URL = `${process.env.PUBLIC_URL || ''}/geocode_cache.json`;
 export const REGION_BBOX = [19.30, 54.00, 23.10, 55.60];
 
 export const MAP_OPTIONS = {

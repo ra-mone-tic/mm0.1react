@@ -11,7 +11,6 @@ function App() {
   const [selectedDate, setSelectedDate] = useState(new Date().toISOString().slice(0, 10));
   const [showSidebar, setShowSidebar] = useState(false);
   const [selectedEvent, setSelectedEvent] = useState(null);
-  const [showSearchPanel, setShowSearchPanel] = useState(false);
 
   const handleEventSelect = (event) => {
     setSelectedEvent(event);

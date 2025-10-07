@@ -14,6 +14,10 @@ function SearchPanel({ events }) {
   const searchLabelRef = useRef(null);
 
   // Простые функции без useCallback для внутренних операций
+  const updatePanelOffset = () => {
+    document.documentElement.style.setProperty('--search-panel-offset', '82px');
+  };
+
   const resizeMap = () => {
     if (window.mapInstance) {
       setTimeout(() => {
