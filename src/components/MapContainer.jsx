@@ -70,7 +70,7 @@ function MapContainer({ events, selectedDate, selectedEvent, onEventSelect }) {
     }
   }, [selectedDate, events, renderDayEvents]);
 
-  // Эффект для выделения события
+  // Эффект для выделения события с маркером
   useEffect(() => {
     if (selectedEvent && mapInstanceRef.current) {
       // Fly to event
@@ -78,8 +78,17 @@ function MapContainer({ events, selectedDate, selectedEvent, onEventSelect }) {
         center: [selectedEvent.lon, selectedEvent.lat],
         zoom: 14
       });
+
+      // Очистить все маркеры и добавить маркер для выбранного события
+      clearMarkers();
+      const marker = addMarker(selectedEvent, onEventSelect, mapInstanceRef.current);
+
+      // Автоматически открыть поп-ап для выбранного события
+      if (marker) {
+        marker.togglePopup();
+      }
     }
-  }, [selectedEvent]);
+  }, [selectedEvent, onEventSelect]);
 
   return (
     <div className="map-container-wrapper">
