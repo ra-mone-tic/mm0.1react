@@ -1,4 +1,4 @@
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useCallback } from 'react';
 import maplibregl from 'maplibre-gl';
 import { MAP_OPTIONS } from '../config.js';
 import { clearMarkers, addMarker, CustomNavigationControl } from '../utils/map.js';
@@ -7,16 +7,15 @@ function MapContainer({ events, selectedDate, selectedEvent, onEventSelect }) {
   const mapContainerRef = useRef(null);
   const mapInstanceRef = useRef(null);
 
-  const renderDayEvents = () => {
+  const renderDayEvents = useCallback(() => {
     if (!mapInstanceRef.current) return;
 
     clearMarkers();
 
     const dayEvents = events.filter(e => e.date === selectedDate);
     dayEvents.forEach(event => addMarker(event, onEventSelect, mapInstanceRef.current));
-  };
+  }, [events, selectedDate, onEventSelect]);
 
-  // eslint-disable-next-line react-hooks/exhaustive-deps
   useEffect(() => {
     if (!mapContainerRef.current) return;
 
@@ -62,14 +61,14 @@ function MapContainer({ events, selectedDate, selectedEvent, onEventSelect }) {
         }
       }
     };
-  }, []);
+  }, [renderDayEvents]);
 
   // Эффект для рендера событий при изменении даты
   useEffect(() => {
     if (mapInstanceRef.current && events.length) {
       renderDayEvents();
     }
-  }, [selectedDate, events, onEventSelect]);
+  }, [selectedDate, events, onEventSelect, renderDayEvents]);
 
   // Эффект для выделения события с маркером
   useEffect(() => {
