@@ -42,6 +42,11 @@ NOMINATIM_MIN_DELAY = float(os.getenv("NOMINATIM_MIN_DELAY", "1.0"))
 # Yandex / Nominatim ключи/параметры
 YANDEX_KEY = os.getenv("YANDEX_KEY")  # ⬅️ обязательный для Яндекса
 NOMINATIM_USER_AGENT = os.getenv("NOMINATIM_USER_AGENT", "meowafisha-map-fetch/1.0")
+
+# Protect against default geopy user_agent
+if NOMINATIM_USER_AGENT in ("", "geopy/2.4.1", "geopy"):
+    NOMINATIM_USER_AGENT = "meowafisha-map-fetch/1.0"
+
 # если в перспективе будет свой Nominatim: NOMINATIM_URL="nominatim.example.com"
 NOMINATIM_URL = os.getenv("NOMINATIM_URL", "").strip()
 
