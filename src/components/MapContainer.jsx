@@ -16,6 +16,7 @@ function MapContainer({ events, selectedDate, selectedEvent, onEventSelect }) {
     dayEvents.forEach(event => addMarker(event, onEventSelect, mapInstanceRef.current));
   }, [events, selectedDate, onEventSelect]);
 
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   useEffect(() => {
     if (!mapContainerRef.current) return;
 
@@ -68,7 +69,7 @@ function MapContainer({ events, selectedDate, selectedEvent, onEventSelect }) {
     if (mapInstanceRef.current && events.length) {
       renderDayEvents();
     }
-  }, [selectedDate, events, renderDayEvents]);
+  }, [selectedDate, events, onEventSelect, renderDayEvents]);
 
   // Эффект для выделения события с маркером
   useEffect(() => {
