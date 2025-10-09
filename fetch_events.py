@@ -29,7 +29,7 @@ from geopy.extra.rate_limiter import RateLimiter
 # ─────────── НАСТРОЙКИ ───────────
 TOKEN        = os.getenv("VK_TOKEN")                       # ⬅️ секрет VK (обязателен)
 DOMAIN       = os.getenv("VK_DOMAIN", "meowafisha")        # паблик ВК
-MAX_POSTS    = int(os.getenv("VK_MAX_POSTS", "2000"))
+MAX_POSTS    = int(os.getenv("VK_MAX_POSTS", "500"))
 BATCH        = 100
 WAIT_REQ     = float(os.getenv("VK_WAIT_REQ", "1.1"))      # пауза между wall.get (~1 rps)
 YEAR_DEFAULT = os.getenv("YEAR_DEFAULT", "2025")
@@ -48,9 +48,9 @@ NOMINATIM_URL = os.getenv("NOMINATIM_URL", "").strip()
 # Логирование в файл (кроме stdout)
 GEOCODE_SAVE_LOG = os.getenv("GEOCODE_SAVE_LOG", "1") == "1"
 
-OUTPUT_JSON  = Path("events.json")           # отсюда читает фронт
-CACHE_FILE   = Path("geocode_cache.json")    # коммитим — экономит лимиты
-LOG_FILE     = Path("geocode_log.json")      # в .gitignore
+OUTPUT_JSON  = Path("public", "events.json")           # отсюда читает фронт
+CACHE_FILE   = Path("public", "geocode_cache.json")    # коммитим — экономит лимиты
+LOG_FILE     = Path("public", "geocode_log.json")      # в .gitignore
 
 assert TOKEN, "VK_TOKEN не задан (секрет репозитория или .env)"
 
