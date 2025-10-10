@@ -3,7 +3,9 @@ import Header from './components/Header';
 import MapContainer from './components/MapContainer';
 import Sidebar from './components/Sidebar';
 import SearchPanel from './components/SearchPanel';
+
 import { useEvents } from './hooks/useEvents.js';
+import { getMarkerById } from './utils/map.js';
 import './App.css';
 
 function App() {

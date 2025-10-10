@@ -194,7 +194,7 @@ export function addMarker(event, onSelectEvent, map, isSelected = false) {
     return;
   }
 
-  console.log('Добавляю маркер для:', event.title, [event.lon, event.lat]);
+
 
   const popup = new maplibregl.Popup({
     offset: 24,
@@ -272,6 +272,7 @@ export function addMarker(event, onSelectEvent, map, isSelected = false) {
     if (onSelectEvent) {
       onSelectEvent(event);
     }
+    marker.togglePopup();
   });
 
   return marker;

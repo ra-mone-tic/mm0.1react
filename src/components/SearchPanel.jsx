@@ -2,6 +2,7 @@ import { useState, useEffect, useRef, useCallback, useMemo } from 'react';
 import { searchEvents } from '../utils/search.js';
 import { debounce, getTimeAgoForEvent, extractTimeFromText } from '../utils/time.js';
 import { groupEventsByDate } from '../hooks/useEvents.js';
+import { getMarkerById } from '../utils/map.js';
 
 function SearchPanel({ events }) {
   const [query, setQuery] = useState('');
@@ -107,6 +108,10 @@ function SearchPanel({ events }) {
             if (window.focusEvent) {
               window.focusEvent(event);
             }
+            const marker = getMarkerById(event.id);
+            if (marker) {
+              marker.togglePopup();
+            }
             closePanel();
           });
 
@@ -149,6 +154,10 @@ function SearchPanel({ events }) {
           const eventData = events.find(e => e.id === event.id);
           if (eventData && window.focusEvent) {
             window.focusEvent(eventData);
+          }
+          const marker = getMarkerById(event.id);
+          if (marker) {
+            marker.togglePopup();
           }
           closePanel();
         });

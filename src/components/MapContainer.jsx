@@ -15,14 +15,6 @@ function MapContainer({ events, selectedDate, selectedEvent, onEventSelect }) {
 
     const dayEvents = events.filter(e => e.date === selectedDate);
     dayEvents.forEach(event => addMarker(event, onEventSelect, mapInstanceRef.current, event.id === selectedEvent?.id));
-
-    // Auto open popup for selected event
-    if (selectedEvent) {
-      const marker = getMarkerById(selectedEvent.id);
-      if (marker && marker.getPopup()) {
-        marker.togglePopup();
-      }
-    }
   }, [events, selectedDate, onEventSelect, selectedEvent, mapInstanceRef]);
 
   useEffect(() => {
@@ -88,6 +80,13 @@ function MapContainer({ events, selectedDate, selectedEvent, onEventSelect }) {
         zoom: 14,
         duration: 2000 // Увеличиваем длительность анимации для плавности
       });
+      // Toggle popup after flyTo
+      const marker = getMarkerById(selectedEvent.id);
+      if (marker) {
+        setTimeout(() => {
+          marker.togglePopup();
+        }, 2000);
+      }
     }
   }, [selectedEvent, mapLoaded]);
 
