@@ -7,6 +7,13 @@ function MapContainer({ events, selectedDate, selectedEvent, onEventSelect }) {
   const mapContainerRef = useRef(null);
   const mapInstanceRef = useRef(null);
   const [mapLoaded, setMapLoaded] = useState(false);
+  const [lastSource, setLastSource] = useState(null);
+  const prevSelectedRef = useRef(null);
+
+  const handleEventSelect = useCallback((event, source = null) => {
+    onEventSelect(event);
+    setLastSource(source);
+  }, [onEventSelect]);
 
   const renderDayEvents = useCallback(() => {
     if (!mapInstanceRef.current) return;
@@ -14,8 +21,8 @@ function MapContainer({ events, selectedDate, selectedEvent, onEventSelect }) {
     clearMarkers();
 
     const dayEvents = events.filter(e => e.date === selectedDate);
-    dayEvents.forEach(event => addMarker(event, onEventSelect, mapInstanceRef.current, event.id === selectedEvent?.id));
-  }, [events, selectedDate, onEventSelect, selectedEvent, mapInstanceRef]);
+    dayEvents.forEach(event => addMarker(event, (e) => handleEventSelect(e, 'marker'), mapInstanceRef.current));
+  }, [events, selectedDate, handleEventSelect, mapInstanceRef]);
 
   useEffect(() => {
     if (!mapContainerRef.current) return;
@@ -71,22 +78,49 @@ function MapContainer({ events, selectedDate, selectedEvent, onEventSelect }) {
     }
   }, [selectedDate, events, mapLoaded, onEventSelect, renderDayEvents]);
 
-  // Эффект для выделения события с маркером
+  // Эффект для обновления стилей маркеров при изменении selectedEvent
   useEffect(() => {
-    if (selectedEvent && mapInstanceRef.current && mapLoaded) {
-      // Fly to event
-      mapInstanceRef.current.flyTo({
-        center: [selectedEvent.lon, selectedEvent.lat],
-        zoom: 14,
-        duration: 2000 // Увеличиваем длительность анимации для плавности
-      });
-      // Toggle popup immediately
+    const prevSelected = prevSelectedRef.current;
+    if (prevSelected && prevSelected.id !== selectedEvent?.id) {
+      const marker = getMarkerById(prevSelected.id);
+      if (marker) {
+        marker.getElement().firstChild.style.fill = '#FF6B6B';
+        marker.getElement().style.transform = 'scale(1.2)';
+      }
+    }
+    if (selectedEvent) {
       const marker = getMarkerById(selectedEvent.id);
       if (marker) {
+        marker.getElement().firstChild.style.fill = '#FF0000';
+        marker.getElement().style.transform = 'scale(1.5)';
         marker.togglePopup();
       }
     }
-  }, [selectedEvent, mapLoaded]);
+    prevSelectedRef.current = selectedEvent;
+  }, [selectedEvent]);
+
+  // Эффект для выделения события с маркером
+  useEffect(() => {
+    if (selectedEvent && mapInstanceRef.current && mapLoaded) {
+      // Fly to event only if not from marker click
+      if (lastSource !== 'marker') {
+        mapInstanceRef.current.flyTo({
+          center: [selectedEvent.lon, selectedEvent.lat],
+          zoom: 14,
+          duration: 2000 // Увеличиваем длительность анимации для плавности
+        });
+      }
+      // Open popup
+      const marker = getMarkerById(selectedEvent.id);
+      if (marker && marker._popup) {
+        try {
+          marker._popup.remove();
+        } catch (e) {}
+        marker._popup.addTo(marker._map);
+      }
+      setLastSource(null); // Reset for next event
+    }
+  }, [selectedEvent, mapLoaded, lastSource]);
 
   return (
     <div className="map-container-wrapper">

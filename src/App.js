@@ -29,7 +29,7 @@ function App() {
   // Устанавливаем глобальную функцию для поиска
   useEffect(() => {
     window.focusEvent = (event) => {
-      handleEventSelect(event);
+      handleEventSelect(event, 'search');
     };
   }, [handleEventSelect]);
 

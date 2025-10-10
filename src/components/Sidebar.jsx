@@ -54,7 +54,7 @@ function Sidebar({
           <EventList
             events={displayedEvents}
             selectedDate={selectedDate}
-            onEventClick={onEventClick}
+            onEventClick={(event) => onEventClick(event, 'sidebar')}
             showingArchive={showingArchive}
           />
         )}
