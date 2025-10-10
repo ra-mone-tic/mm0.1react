@@ -1,6 +1,7 @@
-import { useState, useEffect, useRef, useCallback } from 'react';
+import { useState, useEffect, useRef, useCallback, useMemo } from 'react';
 import { searchEvents } from '../utils/search.js';
-import { debounce } from '../utils/time.js';
+import { debounce, getTimeAgoForEvent, extractTimeFromText } from '../utils/time.js';
+import { groupEventsByDate } from '../hooks/useEvents.js';
 
 function SearchPanel({ events }) {
   const [query, setQuery] = useState('');
@@ -12,6 +13,20 @@ function SearchPanel({ events }) {
   const searchResultsRef = useRef(null);
   const searchEmptyRef = useRef(null);
   const searchLabelRef = useRef(null);
+
+  const groupedUpcoming = useMemo(() => {
+    const today = new Date().toISOString().slice(0, 10);
+    const upcomingEvents = events.filter(event => {
+      if (event.date > today) return true;
+      if (event.date < today) return false;
+
+      const timeInfo = extractTimeFromText(event.text);
+      if (!timeInfo || !timeInfo.hasEndTime) return true;
+
+      return !getTimeAgoForEvent(event.date, timeInfo.end, timeInfo.start);
+    });
+    return groupEventsByDate(upcomingEvents, today);
+  }, [events]);
 
   // Простые функции без useCallback для внутренних операций
   const updatePanelOffset = () => {
@@ -70,49 +85,78 @@ function SearchPanel({ events }) {
       return;
     }
 
-    let matches;
     if (!normalized) {
-      matches = events.slice(0, 6); // Показываем первые 6 событий как подсказки
-      if (searchLabelRef.current) {
-        searchLabelRef.current.textContent = 'Подсказки';
+      // Показываем Upcoming events с группировкой по датам
+      for (const [sectionLabel, eventsInSection] of Object.entries(groupedUpcoming)) {
+        const headerLi = document.createElement('li');
+        headerLi.innerHTML = `<strong>${sectionLabel}</strong>`;
+        headerLi.style.padding = '0.5rem 1rem';
+        headerLi.style.borderBottom = '1px solid var(--border)';
+        headerLi.style.backgroundColor = 'var(--surface-2)';
+        headerLi.style.fontWeight = '600';
+        searchResultsRef.current.appendChild(headerLi);
+
+        eventsInSection.forEach((event) => {
+          const li = document.createElement('li');
+          li.dataset.eventId = event.id;
+          li.setAttribute('role', 'option');
+          li.tabIndex = 0;
+          li.innerHTML = `<strong>${event.title}</strong><span>${event.location}</span><span>${event.date}</span>`;
+
+          li.addEventListener('click', () => {
+            if (window.focusEvent) {
+              window.focusEvent(event);
+            }
+            closePanel();
+          });
+
+          searchResultsRef.current.appendChild(li);
+        });
       }
+
+      if (searchLabelRef.current) {
+        searchLabelRef.current.textContent = 'Ближайшие мероприятия';
+      }
+
+      searchEmptyRef.current.hidden = true;
     } else {
-      matches = searchEvents(events, normalized);
-      matches = matches.slice(0, 20); // Ограничиваем
+      // Поиск
+      const matches = searchEvents(events, normalized);
+      const matchesSlice = matches.slice(0, 20);
 
       if (searchLabelRef.current) {
         searchLabelRef.current.textContent = 'Результаты';
       }
-    }
 
-    if (!matches.length) {
-      if (searchEmptyRef.current) {
-        searchEmptyRef.current.textContent = 'Ничего не найдено';
-        searchEmptyRef.current.hidden = false;
-      }
-      return;
-    }
-
-    searchEmptyRef.current.hidden = true;
-
-    matches.forEach((event) => {
-      const li = document.createElement('li');
-      li.dataset.eventId = event.id;
-      li.setAttribute('role', 'option');
-      li.tabIndex = 0;
-      li.innerHTML = `<strong>${event.title}</strong><span>${event.location}</span><span>${event.date}</span>`;
-
-      li.addEventListener('click', () => {
-        const eventData = events.find(e => e.id === event.id);
-        if (eventData && window.focusEvent) {
-          window.focusEvent(eventData);
+      if (!matchesSlice.length) {
+        if (searchEmptyRef.current) {
+          searchEmptyRef.current.textContent = 'Ничего не найдено';
+          searchEmptyRef.current.hidden = false;
         }
-        closePanel();
-      });
+        return;
+      }
 
-      searchResultsRef.current.appendChild(li);
-    });
-  }, [events, closePanel]);
+      searchEmptyRef.current.hidden = true;
+
+      matchesSlice.forEach((event) => {
+        const li = document.createElement('li');
+        li.dataset.eventId = event.id;
+        li.setAttribute('role', 'option');
+        li.tabIndex = 0;
+        li.innerHTML = `<strong>${event.title}</strong><span>${event.location}</span><span>${event.date}</span>`;
+
+        li.addEventListener('click', () => {
+          const eventData = events.find(e => e.id === event.id);
+          if (eventData && window.focusEvent) {
+            window.focusEvent(eventData);
+          }
+          closePanel();
+        });
+
+        searchResultsRef.current.appendChild(li);
+      });
+    }
+  }, [events, groupedUpcoming, closePanel]);
 
   // Debounced поиск
   useEffect(() => {
