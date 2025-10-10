@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import Header from './components/Header';
 import MapContainer from './components/MapContainer';
 import Sidebar from './components/Sidebar';
@@ -12,34 +12,38 @@ function App() {
   const [showSidebar, setShowSidebar] = useState(false);
   const [selectedEvent, setSelectedEvent] = useState(null);
 
-  const handleEventSelect = (event) => {
+  const handleEventSelect = useCallback((event) => {
     setSelectedEvent(event);
     setShowSidebar(false); // Закрыть сайдбар при выборе
-  };
+  }, []);
+
+  const handleToggleSidebar = useCallback(() => {
+    setShowSidebar(prev => !prev);
+  }, []);
 
   // Устанавливаем глобальную функцию для поиска
   useEffect(() => {
     window.focusEvent = (event) => {
       handleEventSelect(event);
     };
-  }, []);
+  }, [handleEventSelect]);
 
 
 
   // Закрытие панелей при клике вне
-  const handleLayoutClick = (e) => {
+  const handleLayoutClick = useCallback((e) => {
     // Закрываем сайдбар при клике вне
     if (showSidebar && !e.target.closest('.sidebar') && !e.target.closest('#burger')) {
       setShowSidebar(false);
     }
-  };
+  }, [showSidebar]);
 
   return (
     <div className="app" onClick={handleLayoutClick}>
       <Header
         selectedDate={selectedDate}
         onDateChange={setSelectedDate}
-        onToggleSidebar={() => setShowSidebar(!showSidebar)}
+        onToggleSidebar={handleToggleSidebar}
       />
       <div className="layout">
         <MapContainer

@@ -76,19 +76,25 @@ function MapContainer({ events, selectedDate, selectedEvent, onEventSelect }) {
       // Fly to event
       mapInstanceRef.current.flyTo({
         center: [selectedEvent.lon, selectedEvent.lat],
-        zoom: 14
+        zoom: 14,
+        duration: 2000 // Увеличиваем длительность анимации для плавности
       });
 
       // Очистить все маркеры и добавить маркер для выбранного события
       clearMarkers();
       const marker = addMarker(selectedEvent, onEventSelect, mapInstanceRef.current);
 
-      // Автоматически открыть поп-ап для выбранного события
+      // Автоматически открыть поп-ап для выбранного события через небольшую задержку
       if (marker) {
-        marker.togglePopup();
+        setTimeout(() => {
+          marker.togglePopup();
+        }, 1500); // Задержка чтобы дать анимации flyTo закончиться
       }
+    } else if (!selectedEvent && mapInstanceRef.current) {
+      // Если событие сбросилось, перерисовать маркеры для выбранной даты
+      renderDayEvents();
     }
-  }, [selectedEvent, onEventSelect]);
+  }, [selectedEvent, onEventSelect, renderDayEvents]);
 
   return (
     <div className="map-container-wrapper">
