@@ -19,12 +19,8 @@ function MapContainer({ events, selectedDate, selectedEvent, onEventSelect }) {
     // Auto open popup for selected event
     if (selectedEvent) {
       const marker = getMarkerById(selectedEvent.id);
-      if (marker) {
-        setTimeout(() => {
-          if (marker && marker.getPopup()) {
-            marker.togglePopup();
-          }
-        }, 1500);
+      if (marker && marker.getPopup()) {
+        marker.togglePopup();
       }
     }
   }, [events, selectedDate, onEventSelect, selectedEvent, mapInstanceRef]);
