@@ -154,6 +154,12 @@ export function formatLocation(location) {
   return location.replace(/,?\s*Калининград\s*$/i, '');
 }
 
+// Функция для проверки, прошло ли время события
+export function getTimeAgoForEvent(eventDateStr, endTimeStr, startTimeStr) {
+  const text = getTimeAgoText(eventDateStr, endTimeStr, startTimeStr);
+  return !!text; // true если прошло
+}
+
 // Функция debounce для оптимизации
 export function debounce(fn, delay) {
   let timer;

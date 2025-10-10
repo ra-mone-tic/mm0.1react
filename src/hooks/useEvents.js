@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { loadGeocodeCache, updateEventCoordinates, makeEventId } from '../utils/map.js';
 import { JSON_URL } from '../config.js';
-import { formatLocation, getDayOfWeekName } from '../utils/time.js';
+import { formatLocation, getDayOfWeekName, getTimeAgoForEvent, extractTimeFromText } from '../utils/time.js';
 
 // Хук для управления данными событий
 export function useEvents() {
@@ -71,7 +71,6 @@ export function useEventGroups(events) {
     // Для сегодняшних проверяем время окончания
     if (!event.text) return true;
 
-    const { extractTimeFromText } = require('../utils/time.js');
     const timeInfo = extractTimeFromText(event.text);
     if (!timeInfo || !timeInfo.hasEndTime) return true;
 
@@ -85,7 +84,6 @@ export function useEventGroups(events) {
 
     if (!event.text) return false;
 
-    const { extractTimeFromText } = require('../utils/time.js');
     const timeInfo = extractTimeFromText(event.text);
     if (!timeInfo || !timeInfo.hasEndTime) return false;
 
@@ -105,25 +103,7 @@ export function useEventGroups(events) {
   };
 }
 
-// Вспомогательная функция для проверки, прошло ли время события
-function getTimeAgoForEvent(eventDateStr, endTimeStr, startTimeStr) {
-  if (!endTimeStr || !eventDateStr) return false;
 
-  let endDateStr = eventDateStr;
-  const startHour = startTimeStr ? parseInt(startTimeStr.split(':')[0]) : 0;
-  const endHour = parseInt(endTimeStr.split(':')[0]);
-
-  if (endHour < startHour) {
-    const date = new Date(eventDateStr);
-    date.setDate(date.getDate() + 1);
-    endDateStr = date.toISOString().slice(0, 10);
-  }
-
-  const endTime = new Date(endDateStr + 'T' + endTimeStr + ':00');
-  const now = new Date();
-
-  return endTime <= now;
-}
 
 // Экспортируем groupEventsByDate для использования в компонентах
 export function groupEventsByDate(events, todayStr) {

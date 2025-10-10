@@ -180,7 +180,7 @@ export function popupTemplate(event) {
   `;
 }
 
-export function addMarker(event, onSelectEvent, map) {
+export function addMarker(event, onSelectEvent, map, isSelected = false) {
   // Если карта не передана, используем window.currentMap
   const targetMap = map || window.currentMap || window.mapInstance;
   if (!targetMap) {
@@ -204,8 +204,8 @@ export function addMarker(event, onSelectEvent, map) {
   }).setHTML(popupTemplate(event));
 
   const marker = new maplibregl.Marker({
-    color: '#FF6B6B', // Яркий цвет маркера
-    scale: 1.2 // Увеличенный размер
+    color: isSelected ? '#FF0000' : '#FF6B6B', // Selected marker is red
+    scale: isSelected ? 1.5 : 1.2 // Selected is larger
   })
   .setLngLat([event.lon, event.lat])
   .setPopup(popup)
@@ -293,4 +293,8 @@ export function highlightMarker(eventId) {
     return true;
   }
   return false;
+}
+
+export function getMarkerById(eventId) {
+  return markerById.get(eventId);
 }

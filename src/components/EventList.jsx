@@ -3,6 +3,7 @@ import SectionHeader from './SectionHeader';
 import EventItem from './EventItem';
 import { groupEventsByDate } from '../hooks/useEvents.js';
 import { DEVICE_TODAY } from '../config.js';
+import { getTimeAgoForEvent, extractTimeFromText } from '../utils/time.js';
 
 function EventList({ events, selectedDate, onEventClick, showingArchive = false }) {
   const groupedEvents = useMemo(() => {
@@ -15,11 +16,9 @@ function EventList({ events, selectedDate, onEventClick, showingArchive = false 
       if (event.date < DEVICE_TODAY) return false;
 
       // Filter сегодняшний день: только события, которые ещё не закончились
-      const extractTimeFromText = require('../utils/time.js').extractTimeFromText;
       const timeInfo = event.text ? extractTimeFromText(event.text) : null;
       if (!timeInfo || !timeInfo.hasEndTime) return true;
 
-      const getTimeAgoForEvent = require('../hooks/useEvents.js').getTimeAgoForEvent;
       return !getTimeAgoForEvent(event.date, timeInfo.end, timeInfo.start);
     });
 

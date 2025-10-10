@@ -13,9 +13,12 @@ function App() {
   const [selectedEvent, setSelectedEvent] = useState(null);
 
   const handleEventSelect = useCallback((event) => {
+    if (event.date !== selectedDate) {
+      setSelectedDate(event.date);
+    }
     setSelectedEvent(event);
     setShowSidebar(false); // Закрыть сайдбар при выборе
-  }, []);
+  }, [selectedDate]);
 
   const handleToggleSidebar = useCallback(() => {
     setShowSidebar(prev => !prev);
@@ -42,7 +45,7 @@ function App() {
     <div className="app" onClick={handleLayoutClick}>
       <Header
         selectedDate={selectedDate}
-        onDateChange={setSelectedDate}
+        onDateChange={(date) => { setSelectedDate(date); setSelectedEvent(null); }}
         onToggleSidebar={handleToggleSidebar}
       />
       <div className="layout">
@@ -56,7 +59,7 @@ function App() {
           events={events}
           isOpen={showSidebar}
           selectedDate={selectedDate}
-          onDateChange={setSelectedDate}
+          onDateChange={(date) => { setSelectedDate(date); setSelectedEvent(null); }}
           onEventClick={handleEventSelect}
           loading={loading}
         />

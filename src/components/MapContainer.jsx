@@ -1,11 +1,12 @@
-import { useEffect, useRef, useCallback } from 'react';
+import { useEffect, useRef, useCallback, useState } from 'react';
 import maplibregl from 'maplibre-gl';
 import { MAP_OPTIONS } from '../config.js';
-import { clearMarkers, addMarker, CustomNavigationControl } from '../utils/map.js';
+import { clearMarkers, addMarker, CustomNavigationControl, getMarkerById } from '../utils/map.js';
 
 function MapContainer({ events, selectedDate, selectedEvent, onEventSelect }) {
   const mapContainerRef = useRef(null);
   const mapInstanceRef = useRef(null);
+  const [mapLoaded, setMapLoaded] = useState(false);
 
   const renderDayEvents = useCallback(() => {
     if (!mapInstanceRef.current) return;
@@ -13,8 +14,20 @@ function MapContainer({ events, selectedDate, selectedEvent, onEventSelect }) {
     clearMarkers();
 
     const dayEvents = events.filter(e => e.date === selectedDate);
-    dayEvents.forEach(event => addMarker(event, onEventSelect, mapInstanceRef.current));
-  }, [events, selectedDate, onEventSelect]);
+    dayEvents.forEach(event => addMarker(event, onEventSelect, mapInstanceRef.current, event.id === selectedEvent?.id));
+
+    // Auto open popup for selected event
+    if (selectedEvent) {
+      const marker = getMarkerById(selectedEvent.id);
+      if (marker) {
+        setTimeout(() => {
+          if (marker && marker.getPopup()) {
+            marker.togglePopup();
+          }
+        }, 1500);
+      }
+    }
+  }, [events, selectedDate, onEventSelect, selectedEvent, mapInstanceRef]);
 
   useEffect(() => {
     if (!mapContainerRef.current) return;
@@ -44,7 +57,7 @@ function MapContainer({ events, selectedDate, selectedEvent, onEventSelect }) {
     window.mapInstance = map;
 
     const onMapLoad = () => {
-      renderDayEvents();
+      setMapLoaded(true);
     };
 
     map.on('load', onMapLoad);
@@ -61,42 +74,26 @@ function MapContainer({ events, selectedDate, selectedEvent, onEventSelect }) {
         }
       }
     };
-  }, [renderDayEvents]);
+  }, []);
 
   // Эффект для рендера событий при изменении даты
   useEffect(() => {
-    if (mapInstanceRef.current && events.length) {
+    if (mapInstanceRef.current && mapLoaded && events.length) {
       renderDayEvents();
     }
-  }, [selectedDate, events, onEventSelect, renderDayEvents]);
+  }, [selectedDate, events, mapLoaded, onEventSelect, renderDayEvents]);
 
   // Эффект для выделения события с маркером
   useEffect(() => {
-    if (selectedEvent && mapInstanceRef.current) {
+    if (selectedEvent && mapInstanceRef.current && mapLoaded) {
       // Fly to event
       mapInstanceRef.current.flyTo({
         center: [selectedEvent.lon, selectedEvent.lat],
         zoom: 14,
         duration: 2000 // Увеличиваем длительность анимации для плавности
       });
-
-      // Очистить все маркеры и добавить маркер для выбранного события
-      clearMarkers();
-      const marker = addMarker(selectedEvent, onEventSelect, mapInstanceRef.current);
-
-      // Автоматически открыть поп-ап для выбранного события через небольшую задержку
-      if (marker) {
-        setTimeout(() => {
-          if (marker && marker.getPopup()) {
-            marker.togglePopup();
-          }
-        }, 1500); // Задержка чтобы дать анимации flyTo закончиться
-      }
-    } else if (!selectedEvent && mapInstanceRef.current) {
-      // Если событие сбросилось, перерисовать маркеры для выбранной даты
-      renderDayEvents();
     }
-  }, [selectedEvent, onEventSelect, renderDayEvents]);
+  }, [selectedEvent, mapLoaded]);
 
   return (
     <div className="map-container-wrapper">
