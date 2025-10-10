@@ -196,12 +196,11 @@ export function addMarker(event, onSelectEvent, map, isSelected = false) {
 
   console.log('Добавляю маркер для:', event.title, [event.lon, event.lat]);
 
-  // Принудительно ставим z-index выше для маркера
   const popup = new maplibregl.Popup({
     offset: 24,
     closeButton: false,
     className: 'custom-popup'
-  }).setHTML(popupTemplate(event));
+  }).setHTML(popupTemplate(event)).setLngLat([event.lon, event.lat]);
 
   const marker = new maplibregl.Marker({
     color: isSelected ? '#FF0000' : '#FF6B6B', // Selected marker is red
@@ -210,6 +209,11 @@ export function addMarker(event, onSelectEvent, map, isSelected = false) {
   .setLngLat([event.lon, event.lat])
   .setPopup(popup)
   .addTo(targetMap);
+
+  // Set z-index for marker (above map, below UI elements)
+  const markerElement = marker.getElement();
+  markerElement.style.zIndex = '100';
+
   markers.push(marker);
   if (event.id) {
     markerById.set(event.id, marker);
@@ -240,6 +244,8 @@ export function addMarker(event, onSelectEvent, map, isSelected = false) {
   popup.on('open', () => {
     const popupEl = popup.getElement();
     if (!popupEl) return;
+
+    popupEl.style.zIndex = '951'; // Above marker and UI
 
     const handle = popupEl.querySelector('.popup-handle');
     if (handle) {
