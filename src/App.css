@@ -294,9 +294,9 @@ body {
   border: 1px solid var(--border);
   border-radius: var(--radius);
   padding: 0.5rem 1rem;
-  width: 100%;
+  flex: 1;
   max-width: 400px;
-  margin: 0 auto;
+  margin-right: auto;
   transition: all var(--fade-duration);
 }
 
@@ -529,6 +529,7 @@ body {
 
   .search-field {
     padding: 0.25rem 0.5rem;
+    max-width: none;
   }
 
   .search-field__icon {
