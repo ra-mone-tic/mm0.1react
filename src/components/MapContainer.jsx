@@ -87,7 +87,9 @@ function MapContainer({ events, selectedDate, selectedEvent, onEventSelect }) {
       // Автоматически открыть поп-ап для выбранного события через небольшую задержку
       if (marker) {
         setTimeout(() => {
-          marker.togglePopup();
+          if (marker && marker.getPopup()) {
+            marker.togglePopup();
+          }
         }, 1500); // Задержка чтобы дать анимации flyTo закончиться
       }
     } else if (!selectedEvent && mapInstanceRef.current) {
