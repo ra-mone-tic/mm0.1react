@@ -80,12 +80,10 @@ function MapContainer({ events, selectedDate, selectedEvent, onEventSelect }) {
         zoom: 14,
         duration: 2000 // Увеличиваем длительность анимации для плавности
       });
-      // Toggle popup after flyTo
+      // Toggle popup immediately
       const marker = getMarkerById(selectedEvent.id);
       if (marker) {
-        setTimeout(() => {
-          marker.togglePopup();
-        }, 2000);
+        marker.togglePopup();
       }
     }
   }, [selectedEvent, mapLoaded]);
