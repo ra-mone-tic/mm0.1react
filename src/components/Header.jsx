@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 
 function Header({ selectedDate, onDateChange, onToggleSidebar }) {
-  const themes = ['minimal', 'dark', 'colorful', 'monochrome'];
+  const themes = ['minimal', 'dark', 'colorful', 'custom', 'custom-light', 'monochrome'];
   const [themeIndex, setThemeIndex] = useState(0);
 
   const theme = themes[themeIndex];
